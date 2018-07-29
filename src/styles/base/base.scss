@@ -1,0 +1,75 @@
+html {
+  // TODO: remove this from some nested rules
+  // box-sizing: border-box;
+  font-size: 62.5%;
+  // -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: #fafafa; // from Material UI
+  // font-family: 'Roboto', 'Helvetica', 'Verdana', sans-serif;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.6rem;
+  // min-height: 100vh;
+  // height: 100%; // at Yandex site
+}
+
+// from Google Fonts site:
+html,
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box; // OR
+  // box-sizing: inherit; // if it was set for html
+}
+
+#app {
+  // display: flex;
+  // justify-content: center;
+}
+
+// content
+.page {
+  // overflow: auto;
+  // NOTE: excess if app-bar is relatively positioned
+  padding-top: 4.5rem; // TODO: top must equal to app-bar height variable
+  // position: fixed;
+  // width: 100%;
+  // z-index: -1;
+}
+
+.paper {
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow:
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+// for hamburger button
+.icon-button {
+  background: transparent center center no-repeat;
+  background-size: 24px 24px;
+  border: none;
+  cursor: pointer;
+  margin: 0 0.4rem;
+  padding: 0;
+  outline: none;
+}
+
+@media print {
+  body {
+    background-color: #fff;
+  }
+}
