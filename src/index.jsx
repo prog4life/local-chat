@@ -13,6 +13,11 @@ import 'styles/index.scss';
 import 'config/firebase';
 // import 'assets/favicon.png';
 
+// import firebaseClient from './services/firebase-client';
+
+// firebaseClient.handleAuthStateChange();
+// firebaseClient.signInAnonymously();
+
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 const initialState = {

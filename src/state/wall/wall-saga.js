@@ -1,19 +1,27 @@
-import { delay } from 'redux-saga'
-import { put, takeEvery, all } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
+import {
+  call, put, takeEvery, takeLatest, all
+} from 'redux-saga/effects';
+import {
+  JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL,
+} from 'state/action-types';
+import firebaseClient from '../../services/firebase-client';
 
-function* subscribeToWall(data) {
-  yield put({ type: 'fetchWallPosts SAGA started', data });
+// worker saga
+export function* subscribeToWall(action) {
+  yield put({ type: 'subscribeToWall SAGA started', action });
 
-  const result = yield Promise.resolve({ success: 'OK' }).then(
-    response => put({ type: 'subscribeToWall SAGA fullfiled', response }),
-    e => put({ type: 'subscribeToWall SAGA rejected', message: e.message }),
-  );
-
-  yield result;
+  try {
+    const response = yield call(firebaseClient.subscribeToWall);
+    yield put({ type: JOIN_WALL_SUCCESS, payload: response });
+  } catch (e) {
+    yield put({ type: JOIN_WALL_FAIL, message: e.message });
+  }
 }
 
-function* watchJoinWall() {
-  yield takeEvery('JOIN_WALL', subscribeToWall);
+// watcher saga
+export function* watchJoinWall() {
+  yield takeEvery(JOIN_WALL, subscribeToWall);
 }
 
 export default function* wallSaga() {

@@ -11,6 +11,19 @@ import * as aT from 'state/action-types';
 //   }
 // };
 
+const uid = (state = null, action) => {
+  switch (action.type) {
+    case aT.SIGN_IN:
+      return null;
+    case aT.SIGN_IN_SUCCESS:
+      return action.payload.uid;
+    case aT.SIGN_IN_FAILURE:
+      return null;
+    default:
+      return state;
+  }
+};
+
 const id = (state = '', action) => {
   switch (action.type) {
     case aT.SET_CLIENT_ID:
@@ -40,6 +53,7 @@ const nickname = (state = '', action) => {
 
 export default combineReducers({
   // login,
+  uid,
   id,
   token,
   nickname,

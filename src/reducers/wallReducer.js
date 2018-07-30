@@ -11,13 +11,13 @@ import { makeUnion } from './helpers';
 //   postsById: {},
 //   visiblePosts: [],
 //   isConnecting: false,
-//   isTracked: false,
+//   isSubscribed: false,
 // };
 
 const postsById = (state = {}, action) => {
   switch (action.type) {
-    case JOIN_WALL_SUCCESS:
-      return { ...state, ...action.payload.byId };
+    // case JOIN_WALL_SUCCESS:
+    //   return { ...state, ...action.payload.byId };
     default:
       return state;
   }
@@ -25,8 +25,8 @@ const postsById = (state = {}, action) => {
 
 const visiblePosts = (state = [], action) => {
   switch (action.type) {
-    case JOIN_WALL_SUCCESS:
-      return makeUnion(state, action.payload.ids);
+    // case JOIN_WALL_SUCCESS:
+    //   return makeUnion(state, action.payload.ids);
     default:
       return state;
   }
@@ -47,8 +47,9 @@ const isConnecting = (state = false, action) => {
   }
 };
 
+// TODO: change to subscriptionStatus ?
 // whether this client subscribed to the wall or not
-const isTracked = (state = false, action) => {
+const isSubscribed = (state = false, action) => {
   switch (action.type) {
     case JOIN_WALL_SUCCESS:
       return true;
@@ -64,5 +65,5 @@ export default combineReducers({
   postsById,
   visiblePosts,
   isConnecting,
-  isTracked,
+  isSubscribed,
 });

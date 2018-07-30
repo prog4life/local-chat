@@ -5,11 +5,14 @@ export const SEND_MESSAGE_FAIL = 'SEND_MESSAGE_FAIL';
 export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
 // CLIENT
 export const SET_LOGIN = 'SET_LOGIN';
-export const SIGN_IN = 'SIGN_IN';
 export const REQUEST_CLIENT_ID = 'REQUEST_CLIENT_ID';
 export const SET_CLIENT_ID = 'SET_CLIENT_ID';
 export const SET_TOKEN = 'SET_TOKEN';
 export const SET_NICKNAME = 'SET_NICKNAME';
+// AUTH
+export const SIGN_IN = 'SIGN_IN';
+export const SIGN_IN_SUCCESS = 'SIGN_IN_SUCCESS';
+export const SIGN_IN_FAILURE = 'SIGN_IN_FAILURE';
 // TYPING
 export const RECEIVE_TYPING = 'RECEIVE_TYPING';
 export const STOP_TYPING_NOTIFICATION = 'STOP_TYPING_NOTIFICATION';

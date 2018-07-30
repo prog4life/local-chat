@@ -10,6 +10,7 @@ import appReducer from 'reducers';
 
 import createWebsocketHelper from 'middleware/websocketHelper';
 import { websocketMessageHandlers } from 'actions';
+import { authSaga } from 'state/auth';
 import { wallSaga } from 'state/wall';
 
 const sagaMiddleware = createSagaMiddleware();
@@ -45,6 +46,7 @@ const createReduxStore = (preloadedState = {}) => {
     composeEnhancers(applyMiddleware(...middleware)),
   );
 
+  sagaMiddleware.run(authSaga);
   sagaMiddleware.run(wallSaga);
 
   return store;

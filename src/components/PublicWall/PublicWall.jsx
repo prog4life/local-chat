@@ -6,22 +6,33 @@ import { Link } from 'react-router-dom';
 class PublicWall extends React.Component {
   static propTypes = {
     checkClientId: PropTypes.func.isRequired,
-    clientId: PropTypes.string.isRequired,
-    isWallTracked: PropTypes.bool.isRequired,
+    clientUid: PropTypes.string.isRequired,
+    isConnecting: PropTypes.bool.isRequired,
+    isSubscribed: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object).isRequired,
+    signIn: PropTypes.func.isRequired,
   }
 
   componentDidMount() {
+    const { signIn, clientUid } = this.props;
     // prepareWebsocketAndClientId();
-    this.joinWallConditionally();
+    if (!clientUid) {
+      signIn();
+    } else {
+      this.joinWallConditionally();
+    }
   }
 
   componentDidUpdate() {
+    const { clientUid } = this.props;
+
     console.log('PUBLIC WALL UPDATE');
 
-    this.joinWallConditionally();
+    if (clientUid) {
+      this.joinWallConditionally();
+    }
   }
 
   componentWillUnmount() {
@@ -31,12 +42,12 @@ class PublicWall extends React.Component {
   }
 
   joinWallConditionally() {
-    const { isWallTracked, joinWall, clientId, checkClientId } = this.props;
+    const { isSubscribed, joinWall, isConnecting, checkClientId } = this.props;
 
-    // if (!isWallTracked && checkClientId(clientId)) {
-    if (!isWallTracked) {
-      joinWall(clientId);
-      // joinWall();
+    // if (!isSubscribed && checkClientId(clientId)) {
+    if (!isSubscribed && !isConnecting) {
+      joinWall();
+      // joinWall(clientId);
     }
   }
 
