@@ -1,11 +1,32 @@
-import { call, put, takeEvery, takeLatest } from 'redux-saga/effects';
 import { SIGN_IN, SIGN_IN_SUCCESS, SIGN_IN_FAILURE } from 'state/action-types';
+import {
+  call, put, takeEvery, takeLatest, all,
+} from 'redux-saga/effects';
 import firebaseClient from '../../services/firebase-client';
 
-export function* signInSaga(signInAction) {
+export function* authStateChangeSaga() {
   const authStateChangePromise = firebaseClient.handleAuthStateChange();
 
-  if (!signInAction.payload) {
+  // IDEA: yield call(() => authStateChangePromise);
+  const { user, error } = yield authStateChangePromise;
+
+  if (error) {
+    console.log('AUTH STATE CHANGE ERROR from auth-saga');
+    // yield put({ type: AUTH_STATE_CHANGE_ERROR, reason: e.message });
+  }
+  if (user) {
+    const { uid, isAnonymous } = user;
+    yield put({ type: SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
+  } else {
+    console.log('SIGNED OUT from auth-saga');
+    // yield put({ type: SIGN_OUT });
+  }
+}
+
+export function* signInSaga({ payload }) {
+  // const authStateChangePromise = firebaseClient.handleAuthStateChange();
+
+  if (!payload) {
     try {
       yield call(firebaseClient.signInAnonymously);
     } catch (e) {
@@ -13,28 +34,39 @@ export function* signInSaga(signInAction) {
     }
   }
 
-  let user;
+  if (payload && typeof payload === 'object') {
+    try {
+      const { login, password } = payload;
 
-  try {
-    // IDEA: yield call(() => authStateChangePromise);
-    user = yield authStateChangePromise;
-  } catch (e) {
-    console.log('AUTH STATE CHANGE ERROR');
-    // yield put({ type: AUTH_STATE_CHANGE_ERROR, reason: e.message });
+      yield call(firebaseClient.signInWithEmail, login, password);
+    } catch (e) {
+      yield put({ type: SIGN_IN_FAILURE, reason: e.message });
+    }
   }
 
-  if (user) {
-    yield put({ type: SIGN_IN_SUCCESS, payload: { uid: user.uid } });
-  } else {
-    console.log('SIGNED OUT');
-    // yield put({ type: SIGN_OUT });
-  }
+  // // IDEA: yield call(() => authStateChangePromise);
+  // const { user, error } = yield authStateChangePromise;
+  //
+  // if (error) {
+  //   console.log('AUTH STATE CHANGE ERROR from auth-saga');
+  //   // yield put({ type: AUTH_STATE_CHANGE_ERROR, reason: e.message });
+  // }
+  // if (user) {
+  //   yield put({ type: SIGN_IN_SUCCESS, payload: { uid: user.uid } });
+  // } else {
+  //   console.log('SIGNED OUT from auth-saga');
+  //   // yield put({ type: SIGN_OUT });
+  // }
 }
 
 export function* watchSignIn() {
+  // yield takeEvery(AUTH_INITIALIZE, authStateChangeSaga);
   yield takeEvery(SIGN_IN, signInSaga);
 }
 
 export default function* authSaga() {
-  yield watchSignIn();
+  yield all([
+    // authStateChangeSaga(),
+    watchSignIn(),
+  ]);
 }

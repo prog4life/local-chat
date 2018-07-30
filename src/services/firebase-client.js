@@ -7,29 +7,71 @@ const firebaseClient = {
       const errorCode = error.code;
       const errorMessage = error.message;
       // ...
-      console.error(`Got error, code: ${errorCode}, message: ${errorMessage}`);
+      console.error(`Anonymous Sign In error, code: ${errorCode}, `
+        + `message: ${errorMessage}`);
 
       throw error;
     });
   },
+  signInWithEmail(email, password) {
+    return firebase.auth().signInWithEmailAndPassword(email, password)
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ...
+        console.error(`Sign In with email error, code: ${errorCode}, `
+          + `message: ${errorMessage}`);
+
+        throw error;
+      });
+  },
+  signOut() {
+    return firebase.auth().signOut().then( // TEMP: remove then completely
+      () => console.log('SIGN OUT success'),
+      e => console.error('SIGN OUT error', e)
+    );
+  },
   handleAuthStateChange() {
     // eslint-disable-next-line compat/compat
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           // User is signed in.
           const { isAnonymous, uid } = user;
+          const {
+            displayName, email, emailVerified, photoURL, providerData,
+          } = user;
 
           console.log('Signed In USER uid: ', uid);
         } else {
           // User is signed out.
           console.log('User is signed out');
         }
-        resolve(user || null);
+        resolve({ user });
       }, (error) => {
-        reject(error);
+        console.error('Auth state change ERROR: ', error);
+        resolve({ error });
       });
     });
+    // return firebase.auth().onAuthStateChanged((user) => {
+    //   if (user) {
+    //     // User is signed in.
+    //     const { isAnonymous, uid } = user;
+    //     const {
+    //       displayName, email, emailVerified, photoURL, providerData,
+    //     } = user;
+    //
+    //     console.log('Signed In USER uid: ', uid);
+    //     onSignIn(user);
+    //   } else {
+    //     // User is signed out.
+    //     console.log('User is signed out');
+    //     onSignOut();
+    //   }
+    // }, (error) => {
+    //   onError(error);
+    // });
   },
   async subscribeToWall() {
     const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import App from 'components/App';
 
 import { loadState, saveState } from 'utils/localStorage';
+import { processAuthStateChange } from 'state/auth';
 import createReduxStore from './store';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -57,6 +58,8 @@ const initialState = {
 const persistedState = loadState('md-chat-state') || {};
 
 const store = createReduxStore(initialState);
+
+store.dispatch(processAuthStateChange());
 
 // store.subscribe(() => console.log('New state from store: ', store.getState()));
 

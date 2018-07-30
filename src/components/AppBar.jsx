@@ -1,4 +1,5 @@
 import React from 'react';
+import pt from 'prop-types';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 // import PropTypes from 'prop-types';
 import {
@@ -11,12 +12,21 @@ class AppBar extends React.Component {
   state = {
     isOpen: false,
   }
+
   handleToggling = () => {
     this.setState(prevState => ({
       isOpen: !prevState.isOpen,
     }));
   }
+
+  handleSignOutClick = () => {
+    const { signOut } = this.props;
+
+    signOut();
+  }
+
   render() {
+    const { clientUid, isAnonymous } = this.props;
     const { isOpen } = this.state;
 
     return (
@@ -66,13 +76,25 @@ class AppBar extends React.Component {
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink
-                to="/login"
-                tag={RouterNavLink}
-                activeClassName="bg-white"
-              >
-                {'Login'}
-              </NavLink>
+              {clientUid && isAnonymous === false // omit isAnonymous null and true values
+                ? (
+                  <NavLink
+                    href="#"
+                    onClick={this.handleSignOutClick}
+                  >
+                    {'Sign Out'}
+                  </NavLink>
+                )
+                : (
+                  <NavLink
+                    to="/login"
+                    tag={RouterNavLink}
+                    activeClassName="bg-white"
+                  >
+                    {'Login'}
+                  </NavLink>
+                )
+              }
             </NavItem>
           </Nav>
         </Collapse>
@@ -80,5 +102,16 @@ class AppBar extends React.Component {
     );
   }
 }
+
+AppBar.propTypes = {
+  clientUid: pt.string,
+  isAnonymous: pt.bool,
+  signOut: pt.func.isRequired,
+};
+
+AppBar.defaultProps = {
+  clientUid: null,
+  isAnonymous: null,
+};
 
 export default AppBar;

@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 class PublicWall extends React.Component {
   static propTypes = {
-    checkClientId: PropTypes.func.isRequired,
-    clientUid: PropTypes.string.isRequired,
+    // checkClientId: PropTypes.func.isRequired,
+    clientUid: PropTypes.string,
     isConnecting: PropTypes.bool.isRequired,
     isSubscribed: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
@@ -14,6 +14,10 @@ class PublicWall extends React.Component {
     posts: PropTypes.arrayOf(PropTypes.object).isRequired,
     signIn: PropTypes.func.isRequired,
   }
+
+  static defaultProps = {
+    clientUid: null,
+  };
 
   componentDidMount() {
     const { signIn, clientUid } = this.props;

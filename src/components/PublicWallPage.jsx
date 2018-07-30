@@ -2,12 +2,13 @@ import React, { Fragment } from 'react';
 // import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'reactstrap';
 
-import AppBar from 'components/AppBar';
+// import AppBar from 'components/AppBar';
+import AppBarContainer from 'containers/AppBarContainer';
 import PublicWallContainer from 'containers/PublicWallContainer';
 
 const PublicWallPage = () => (
   <Fragment>
-    <AppBar />
+    <AppBarContainer />
     <Container>
       <Row>
         <Col>
