@@ -18,6 +18,7 @@ const uid = (state = null, action) => {
     case aT.SIGN_IN_SUCCESS:
       return action.payload.uid;
     case aT.SIGN_IN_FAILURE:
+    // case aT.SIGN_OUT:
       return null;
     default:
       return state;
@@ -31,6 +32,7 @@ const isAnonymous = (state = null, action) => {
     case aT.SIGN_IN_SUCCESS:
       return (action.payload.uid && action.payload.isAnonymous) || false;
     case aT.SIGN_IN_FAILURE:
+    case aT.SIGN_OUT:
       return null;
     default:
       return state;

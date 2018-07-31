@@ -1,6 +1,9 @@
 import firebase from 'firebase';
 
 const firebaseClient = {
+  auth() {
+    return firebase.auth();
+  },
   signInAnonymously() {
     return firebase.auth().signInAnonymously().catch((error) => {
       // Handle Errors here.
@@ -27,10 +30,7 @@ const firebaseClient = {
       });
   },
   signOut() {
-    return firebase.auth().signOut().then( // TEMP: remove then completely
-      () => console.log('SIGN OUT success'),
-      e => console.error('SIGN OUT error', e)
-    );
+    return firebase.auth().signOut();
   },
   handleAuthStateChange() {
     // eslint-disable-next-line compat/compat

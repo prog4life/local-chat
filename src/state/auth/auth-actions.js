@@ -1,10 +1,10 @@
-import { SIGN_IN, SIGN_OUT, SIGN_IN_SUCCESS } from 'state/action-types';
+import { SIGN_IN, SIGN_OUT, SIGN_IN_SUCCESS, SIGNED_OUT } from 'state/action-types';
 import firebase from 'firebase';
 import firebaseClient from '../../services/firebase-client';
 
 export const signIn = () => ({ type: SIGN_IN });
 export const signOut = () => {
-  firebaseClient.signOut();
+  // firebaseClient.signOut();
 
   return { type: SIGN_OUT };
 };
@@ -13,6 +13,10 @@ export const signInWithEmail = (login, password) => ({
   type: SIGN_IN,
   payload: { login, password },
 });
+
+// Do NOT use this value to authenticate with your backend server, if
+// you have one. Use User.getToken() instead.
+// NOTE: const user = firebase.auth().currentUser; // current user or null
 
 export const processAuthStateChange = () => dispatch => (
   firebase.auth().onAuthStateChanged((user) => {
@@ -26,10 +30,9 @@ export const processAuthStateChange = () => dispatch => (
       dispatch({ type: SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
     } else {
       // User is signed out.
-      dispatch({ type: 'SIGN_OUT_SUCCESS' });
+      dispatch({ type: SIGNED_OUT });
     }
   }, (error) => {
-    console.error('Auth state change ERROR: ', error);
-    dispatch({ type: 'AUTH_STATE_CHANGE_ERROR' });
+    dispatch({ type: 'AUTH_STATE_CHANGE_ERROR', error });
   })
 );

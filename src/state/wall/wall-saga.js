@@ -8,9 +8,7 @@ import {
 import firebaseClient from '../../services/firebase-client';
 
 // worker saga
-export function* subscribeToWall(action) {
-  yield put({ type: 'subscribeToWall SAGA started', action });
-
+export function* subscribeToWall(action) { // TODO: pass uid with action
   try {
     const response = yield call(firebaseClient.subscribeToWall);
     yield put({ type: JOIN_WALL_SUCCESS, payload: response });
