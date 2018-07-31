@@ -18,6 +18,8 @@ const LoginPage = ({ signInWithEmail: signIn }) => (
         event.preventDefault();
         const { login, password } = event.target;
 
+        // TODO: clear inputs
+
         signIn(login.value, password.value);
       }}
     >

@@ -20,22 +20,24 @@ class PublicWall extends React.Component {
   };
 
   componentDidMount() {
-    const { signIn, clientUid } = this.props;
+    const { clientUid, signIn } = this.props;
     // prepareWebsocketAndClientId();
-    if (!clientUid) {
-      signIn();
-    } else {
+    if (clientUid) {
       this.joinWallConditionally();
+    } else {
+      signIn(); // TODO: add backoff
     }
   }
 
   componentDidUpdate() {
-    const { clientUid } = this.props;
+    const { clientUid, signIn } = this.props;
 
     console.log('PUBLIC WALL UPDATE');
 
     if (clientUid) {
       this.joinWallConditionally();
+    } else {
+      signIn(); // TODO: add backoff
     }
   }
 

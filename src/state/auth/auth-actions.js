@@ -9,19 +9,19 @@ export const signOut = () => {
   return { type: SIGN_OUT };
 };
 
-export const signInWithEmail = (login, password) => ({
+export const signInWithEmail = (email, password) => ({
   type: SIGN_IN,
-  payload: { login, password },
+  payload: { email, password },
 });
 
 // Do NOT use this value to authenticate with your backend server, if
-// you have one. Use User.getToken() instead.
+// you have one. Use User.getToken() instead
 // NOTE: const user = firebase.auth().currentUser; // current user or null
 
 export const processAuthStateChange = () => dispatch => (
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      // User is signed in.
+      // User is signed in
       const { isAnonymous, uid } = user;
       const {
         displayName, email, emailVerified, photoURL, providerData,
@@ -29,8 +29,8 @@ export const processAuthStateChange = () => dispatch => (
 
       dispatch({ type: SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
     } else {
-      // User is signed out.
-      dispatch({ type: SIGNED_OUT });
+      // User is signed out
+      dispatch({ type: 'AUTH_STATE_CHANGE_NO_USER' });
     }
   }, (error) => {
     dispatch({ type: 'AUTH_STATE_CHANGE_ERROR', error });

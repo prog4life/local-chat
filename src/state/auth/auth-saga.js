@@ -1,74 +1,78 @@
-import { SIGN_IN, SIGN_IN_SUCCESS, SIGN_IN_FAILURE, SIGN_OUT } from 'state/action-types';
 import {
-  call, put, takeEvery, takeLatest, all,
+  SIGN_IN, SIGN_IN_SUCCESS, SIGN_IN_FAILURE, SIGN_OUT, SIGNED_OUT,
+} from 'state/action-types';
+import {
+  call, put, take, takeEvery, takeLatest, all, select
 } from 'redux-saga/effects';
 import firebase from 'firebase';
 import firebaseClient from '../../services/firebase-client';
 
 export function* authStateChangeSaga() {
-  const authStateChangePromise = firebaseClient.handleAuthStateChange();
+  while (true) {
+    const authStateChangePromise = firebaseClient.handleAuthStateChange();
 
-  // IDEA: yield call(() => authStateChangePromise);
-  const { user, error } = yield authStateChangePromise;
+    // IDEA: yield call(() => authStateChangePromise);
+    const { user, error } = yield authStateChangePromise;
 
-  if (error) {
-    console.log('AUTH STATE CHANGE ERROR from auth-saga');
-    // yield put({ type: AUTH_STATE_CHANGE_ERROR, reason: e.message });
-  }
-  if (user) {
-    const { uid, isAnonymous } = user;
-    yield put({ type: SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
-  } else {
-    console.log('SIGNED OUT from auth-saga');
-    // yield put({ type: SIGN_OUT });
+    if (error) {
+      yield put({ type: 'AUTH_STATE_CHANGE_ERROR', error });
+    }
+    if (user) {
+      const { uid, isAnonymous } = user;
+      yield put({ type: SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
+    } else {
+      yield put({ type: SIGNED_OUT });
+    }
   }
 }
 
-export function* signInSaga({ payload }) {
-  // const authStateChangePromise = firebaseClient.handleAuthStateChange();
+// link anonymous user to email-password user account
+// export function* linkAnonymousUser(email, password) {
+//   const credential = firebaseClient.getEmailCredential(email, password);
+//   console.log('Credential: ', credential);
+//
+//   yield call(firebaseClient.linkAccount, credential);
+// }
 
+export function* signInSaga({ payload }) {
+  // sign in anonymously
   if (!payload) {
     try {
       yield call(firebaseClient.signInAnonymously);
     } catch (e) {
-      yield put({ type: SIGN_IN_FAILURE, reason: e.message });
+      yield put({ type: SIGN_IN_FAILURE, code: e.code, message: e.message });
     }
   }
 
-  if (payload && typeof payload === 'object') {
-    try {
-      const { login, password } = payload;
-
-      yield call(firebaseClient.signInWithEmail, login, password);
-    } catch (e) {
-      yield put({ type: SIGN_IN_FAILURE, reason: e.message });
-    }
+  if (typeof payload !== 'object') {
+    return;
   }
 
-  // // IDEA: yield call(() => authStateChangePromise);
-  // const { user, error } = yield authStateChangePromise;
-  //
-  // if (error) {
-  //   console.log('AUTH STATE CHANGE ERROR from auth-saga');
-  //   // yield put({ type: AUTH_STATE_CHANGE_ERROR, reason: e.message });
+  const { email, password } = payload;
+  const state = yield select();
+  console.log('Sign In STATE: ', state);
+
+  // if (state.client.uid && state.client.isAnonymous) {
+  //   linkAnonymousUser(email, password);
+  //   return;
   // }
-  // if (user) {
-  //   yield put({ type: SIGN_IN_SUCCESS, payload: { uid: user.uid } });
-  // } else {
-  //   console.log('SIGNED OUT from auth-saga');
-  //   // yield put({ type: SIGN_OUT });
-  // }
+
+  try {
+    yield call(firebaseClient.signInWithEmail, email, password);
+  } catch (e) {
+    yield put({ type: SIGN_IN_FAILURE, code: e.code, message: e.message });
+  }
 }
 
 export function* signOutSaga() {
   try {
     yield call(firebaseClient.signOut);
-    // TEMP: next 2 lines
-    const user = firebase.auth().currentUser;
-    console.log('SIGN OUT success from Saga, USER: ', user);
-    // TODO: dispatch action that will clear uid ? and other auth data
-  } catch (e) {
-    put({ type: 'SIGN_OUT_FAILURE', reason: e.message });
+
+    const user = firebase.auth().currentUser; // TEMP:
+
+    yield put({ type: SIGNED_OUT, user });
+  } catch (error) {
+    yield put({ type: 'SIGN_OUT_FAILURE', error });
   }
 }
 

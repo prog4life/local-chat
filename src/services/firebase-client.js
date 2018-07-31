@@ -7,12 +7,7 @@ const firebaseClient = {
   signInAnonymously() {
     return firebase.auth().signInAnonymously().catch((error) => {
       // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
       // ...
-      console.error(`Anonymous Sign In error, code: ${errorCode}, `
-        + `message: ${errorMessage}`);
-
       throw error;
     });
   },
@@ -20,17 +15,30 @@ const firebaseClient = {
     return firebase.auth().signInWithEmailAndPassword(email, password)
       .catch((error) => {
         // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        console.error(`Sign In with email error, code: ${error.code}, `
+          + `message: ${error.message}`);
         // ...
-        console.error(`Sign In with email error, code: ${errorCode}, `
-          + `message: ${errorMessage}`);
-
         throw error;
       });
   },
   signOut() {
     return firebase.auth().signOut();
+  },
+  getEmailCredential(email, password) {
+    return firebase.auth.EmailAuthProvider.credential(email, password);
+  },
+  linkAccount(credential) {
+    return Promise.resolve(credential);
+    // firebase.auth().currentUser.linkAndRetrieveDataWithCredential(credential)
+    //   .then(
+    //     (usercred) => {
+    //       const { user } = usercred;
+    //       console.log('Anonymous account successfully upgraded', user);
+    //     },
+    //     (error) => {
+    //       console.log('Error upgrading anonymous account', error);
+    //     },
+    //   );
   },
   handleAuthStateChange() {
     // eslint-disable-next-line compat/compat
@@ -38,10 +46,8 @@ const firebaseClient = {
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           // User is signed in.
-          const { isAnonymous, uid } = user;
-          const {
-            displayName, email, emailVerified, photoURL, providerData,
-          } = user;
+          const { isAnonymous, uid, displayName, email } = user;
+          const { emailVerified, photoURL, providerData } = user;
 
           console.log('Signed In USER uid: ', uid);
         } else {
@@ -78,7 +84,7 @@ const firebaseClient = {
 
     await delay(2000);
 
-    return Math.random() * 10 > 4
+    return Math.random() * 10 > 3
       ? Promise.resolve({ success: true, response: 'OK' })
       : Promise.reject(new Error('Sample rejection'));
     /* to be implemented */
