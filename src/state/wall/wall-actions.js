@@ -10,3 +10,8 @@ export const joinWallSuccess = ({ entities, result }) => ({
   type: JOIN_WALL_SUCCESS,
   payload: { byId: entities.posts, ids: result },
 });
+
+export const createPost = message => ({
+  type: 'CREATE_POST',
+  message,
+});

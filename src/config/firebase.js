@@ -1,4 +1,6 @@
 import firebase from 'firebase';
+// Required for side-effects
+require('firebase/firestore'); // ???
 
 // Initialize Firebase
 const config = {
@@ -20,3 +22,5 @@ db.collection('walls').get()
     console.log(`${doc.id} => ${doc.data()}`);
   }))
   .catch(e => console.error(e));
+
+export default db;

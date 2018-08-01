@@ -1,9 +1,9 @@
 import firebase from 'firebase';
+import db from '../config/firebase';
+
+const auth = () => firebase.auth();
 
 const firebaseClient = {
-  auth() {
-    return firebase.auth();
-  },
   signInAnonymously() {
     return firebase.auth().signInAnonymously().catch((error) => {
       // Handle Errors here.
@@ -78,6 +78,12 @@ const firebaseClient = {
     // }, (error) => {
     //   onError(error);
     // });
+  },
+  createPost(message) {
+    const wallDocRef = db.collection('walls').doc('VmQhK1Bg5HFKnLMr6hZw');
+    const postRef = wallDocRef.collection('posts').doc('pVfcP0Bhf44hTljJ0Yf6');
+
+    postRef.set({ text: message });
   },
   async subscribeToWall() {
     const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));

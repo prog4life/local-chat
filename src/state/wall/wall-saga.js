@@ -17,13 +17,27 @@ export function* subscribeToWall(action) { // TODO: pass uid with action
   }
 }
 
+export function* createPostFlow({ message }) {
+  try {
+    firebaseClient.createPost(message);
+    yield put({ type: 'POST_CREATED', message });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 // watcher saga
 export function* watchJoinWall() {
   yield takeEvery(JOIN_WALL, subscribeToWall);
 }
 
+export function* watchCreatePost() {
+  yield takeEvery('CREATE_POST', createPostFlow);
+}
+
 export default function* wallSaga() {
   yield all([
     watchJoinWall(),
+    watchCreatePost(),
   ]);
 }

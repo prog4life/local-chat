@@ -5,6 +5,7 @@ import { Container, Row, Col } from 'reactstrap';
 // import AppBar from 'components/AppBar';
 import AppBarContainer from 'containers/AppBarContainer';
 import PublicWallContainer from 'containers/PublicWallContainer';
+import WallPostForm from 'containers/WallPostForm';
 
 const PublicWallPage = () => (
   <Fragment>
@@ -13,6 +14,11 @@ const PublicWallPage = () => (
       <Row>
         <Col>
           <PublicWallContainer />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <WallPostForm />
         </Col>
       </Row>
     </Container>
