@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 // Required for side-effects
-require('firebase/firestore'); // ???
+import 'firebase/firestore'; // ???
 
 // Initialize Firebase
 const config = {
@@ -16,10 +16,20 @@ firebase.initializeApp(config);
 
 // Initialize Cloud Firestore through Firebase
 const db = firebase.firestore();
+const configuration = { timestampsInSnapshots: true };
+db.settings(configuration);
+
+/*
+// Old:
+const date = snapshot.get('created_at');
+// New:
+const timestamp = snapshot.get('created_at');
+const date = timestamp.toDate();
+*/
 
 db.collection('walls').get()
   .then(querySnapshot => querySnapshot.forEach((doc) => {
-    console.log(`${doc.id} => ${doc.data()}`);
+    console.log('wall ', doc.id, ' => ', doc.data());
   }))
   .catch(e => console.error(e));
 

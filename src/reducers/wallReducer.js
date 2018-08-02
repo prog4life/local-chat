@@ -2,10 +2,11 @@ import { combineReducers } from 'redux';
 
 import {
   // LOAD_POSTS, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAIL, WEBSOCKET_CLOSED,
+  FETCH_POSTS, FETCH_POSTS_SUCCESS, FETCH_POSTS_FAIL,
   JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL, WEBSOCKET_CLOSED,
 } from 'state/action-types';
 
-import { makeUnion } from './helpers';
+import { makeUnion } from './reducerUtils';
 
 // const initialState = {
 //   postsById: {},
@@ -14,19 +15,36 @@ import { makeUnion } from './helpers';
 //   isSubscribed: false,
 // };
 
-const postsById = (state = {}, action) => {
+const postsById = (state = null, action) => {
   switch (action.type) {
-    // case JOIN_WALL_SUCCESS:
-    //   return { ...state, ...action.payload.byId };
+    case FETCH_POSTS: // TEMP:
+      return {};
+    case FETCH_POSTS_SUCCESS:
+      return { ...state, ...action.payload.byId };
     default:
       return state;
   }
 };
 
-const visiblePosts = (state = [], action) => {
+const visiblePosts = (state = null, action) => {
   switch (action.type) {
-    // case JOIN_WALL_SUCCESS:
-    //   return makeUnion(state, action.payload.ids);
+    case FETCH_POSTS: // TEMP:
+      return [];
+    case FETCH_POSTS_SUCCESS:
+      return makeUnion(state, action.payload.ids);
+    default:
+      return state;
+  }
+};
+
+const error = (state = null, action) => {
+  switch (action.type) {
+    case FETCH_POSTS_FAIL:
+      return {
+        ...action.error, // TEMP
+        // code: action.error.code,
+        // message: action.error.message,
+      };
     default:
       return state;
   }
@@ -64,6 +82,7 @@ const isSubscribed = (state = false, action) => {
 export default combineReducers({
   postsById,
   visiblePosts,
+  error,
   isConnecting,
   isSubscribed,
 });

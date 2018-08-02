@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { getUid, isAnonymousSelector } from 'reducers';
+import { getUid, isAnonymousSelector } from 'state/selectors';
 import { signOut } from 'state/auth';
 import AppBar from 'components/AppBar';
 

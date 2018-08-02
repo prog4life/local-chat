@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 
 import { signIn } from 'state/auth';
 import { joinWall, leaveWall, checkClientId } from 'state/wall';
-import { getUid, getPosts, isSubscribedToWall, isConnectingToWall } from 'reducers';
+import { getUid, getPosts, isSubscribedToWall, isConnectingToWall } from 'state/selectors';
 
 import PublicWall from 'components/PublicWall';
 

@@ -1,8 +1,8 @@
-export const addIfNotExists = (dest, addition) => {
-  if (dest.includes(addition)) {
-    return [].concat(dest);
+export const addIfNotExist = (receiver, addition) => {
+  if (receiver.includes(addition)) {
+    return [].concat(receiver);
   }
-  return dest.concat(addition);
+  return receiver.concat(addition);
 };
 
 // make array with unique values from 2 arrays

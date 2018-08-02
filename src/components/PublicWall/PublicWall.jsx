@@ -11,12 +11,13 @@ class PublicWall extends React.Component {
     isSubscribed: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
-    posts: PropTypes.arrayOf(PropTypes.object).isRequired,
+    posts: PropTypes.arrayOf(PropTypes.object),
     signIn: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     clientUid: null,
+    posts: null,
   };
 
   componentDidMount() {
@@ -62,12 +63,17 @@ class PublicWall extends React.Component {
 
     return (
       <ListGroup>
-        {posts.map(({ authorId, nickname, createdAt }, index) => {
+        {posts && posts.map(({
+          id, authorId, nickname, text, createdAt
+        }, index) => {
           return (
-            <ListGroupItem key={authorId}>
-              {`List Item ${index + 1}`}
-              <div style={{ backgroundColor: 'violet' }}>
+            <ListGroupItem key={id}>
+              {/* {`List Item ${index + 1}`} */}
+              <div style={{ backgroundColor: '#fdececa3' }}>
                 {`Author: ${nickname}`}
+              </div>
+              <div style={{ backgroundColor: '#fffdfd' }}>
+                {text}
               </div>
               <div style={{ backgroundColor: 'lemonchifon' }}>
                 {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
