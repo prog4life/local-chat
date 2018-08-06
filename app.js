@@ -3,8 +3,8 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const { logger, requestLogger, errorLogger } = require('./server/loggers');
-require('./server/db/mongoose');
+// const { logger, requestLogger, errorLogger } = require('./server/loggers');
+// require('./server/db/mongoose');
 
 // TODO: rename this file to app.js / index.js / etc
 
@@ -12,12 +12,13 @@ require('./server/db/mongoose');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
 // const compiler = webpack(config);
-const websocketServer = require('./server/websocket-server');
+
+// const websocketServer = require('./server/websocket-server');
 
 const app = express();
 const server = http.createServer(app);
 
-websocketServer.start(server);
+// websocketServer.start(server);
 
 const port = process.env.PORT || 8787;
 // can be something like: path.join(__dirname, '..', 'public')
@@ -37,7 +38,7 @@ const morganMessageFormat = ':remote-addr :date - HTTP/1.1 :method ":url" ' +
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan(morganMessageFormat));
-app.use(requestLogger);
+// app.use(requestLogger);
 app.use(express.static(publicPath));
 
 app.get('/favicon.ico', (req, res) => {
@@ -52,11 +53,11 @@ app.get('*', (req, res, next) => {
 app.use((req, res, next) => {
   const error = new Error('Not Found');
 
-  error.code = 404;
+  error.statusCode = 404;
   next(error);
 });
 
-app.use(errorLogger);
+// app.use(errorLogger);
 
 // optionally can include custom error handler
 // app.use(express.errorLogger({
@@ -65,12 +66,14 @@ app.use(errorLogger);
 // }));
 
 app.use((error, req, res, next) => {
-  logger.error(error.message);
-  res.status(error.code || 500).end(error);
+  // logger.error(error.message);
+  console.error(error);
+  res.status(error.statusCode || 500).end(error.message || 'Error w/o message');
 });
 
 server.listen(port);
 
 server.on('listening', () => {
-  logger.info(`Server is listening at ${server.address().port} port`);
+  // logger.info(`Server is listening at ${server.address().port} port`);
+  console.log(`Server is listening at ${server.address().port} port`);
 });

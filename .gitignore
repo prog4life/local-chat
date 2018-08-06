@@ -9,8 +9,8 @@ build/
 build/assets/
 public/**
 
-public/assets/
-src/assets/
+# public/assets/
+# src/assets/
 
 public/**/*.js
 public/**/*.js.map
