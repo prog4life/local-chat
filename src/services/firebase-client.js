@@ -1,4 +1,4 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 
 const auth = () => firebase.auth();
 
@@ -24,7 +24,7 @@ const firebaseClient = {
     return auth().signOut();
   },
   getEmailCredential(email, password) {
-    return firebase.auth.EmailAuthProvider.credential(email, password);
+    return auth().EmailAuthProvider.credential(email, password);
   },
   linkAccount(credential) {
     return Promise.resolve(credential);
@@ -80,4 +80,5 @@ const firebaseClient = {
   },
 };
 
+// TODO: export as function that => firebase.auth()
 export default firebaseClient;

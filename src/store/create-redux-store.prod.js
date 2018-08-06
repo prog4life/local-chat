@@ -1,9 +1,15 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-// import { createLogger } from 'redux-logger';
+import createSagaMiddleware from 'redux-saga';
+import { createLogger } from 'redux-logger'; // TEMP:
 import appReducer from 'reducers';
 
+import { authSaga } from 'state/auth';
+import { wallSaga } from 'state/wall';
+
+const sagaMiddleware = createSagaMiddleware();
 // must be the last middleware in chain
+// TEMP:
 // const logger = createLogger({
 //   duration: true,
 //   predicate: (getState, action) => {
@@ -12,19 +18,24 @@ import appReducer from 'reducers';
 //   }
 // });
 
-// const middleware = [thunk, logger];
-const middleware = [thunk];
+// const middleware = [sagaMiddleware, thunk, logger]; // TEMP:
+const middleware = [sagaMiddleware, thunk];
 
 const createReduxStore = (preloadedState = {}) => {
   // eslint-disable-next-line no-underscore-dangle
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     || compose;
 
-  return createStore(
+  const store = createStore(
     appReducer,
     preloadedState,
     composeEnhancers(applyMiddleware(...middleware)),
   );
+
+  sagaMiddleware.run(authSaga);
+  sagaMiddleware.run(wallSaga);
+
+  return store;
 };
 
 export default createReduxStore;

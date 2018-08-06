@@ -4,7 +4,8 @@ import {
 import {
   call, put, take, takeEvery, takeLatest, all, select
 } from 'redux-saga/effects';
-import firebase from 'firebase';
+// import firebase from 'firebase';
+import firebase from 'firebase/app';
 import firebaseClient from '../../services/firebase-client';
 
 export function* authStateChangeSaga() {

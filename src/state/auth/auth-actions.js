@@ -1,5 +1,5 @@
 import { SIGN_IN, SIGN_OUT, SIGN_IN_SUCCESS, SIGNED_OUT } from 'state/action-types';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import firebaseClient from '../../services/firebase-client';
 
 export const signIn = () => ({ type: SIGN_IN });

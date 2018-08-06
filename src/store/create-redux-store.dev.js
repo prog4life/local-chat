@@ -31,9 +31,9 @@ const websocketHelper = createWebsocketHelper(websocketMessageHandlers);
 
 const watcher = immutabilityWatcher();
 
-const middleware = process.env.NODE_ENV === 'development'
+const middleware = process.env.NODE_ENV === 'development' // TEMP: doublecheck
   ? [watcher, freeze, /* websocketHelper,  websocketMw, */ sagaMiddleware, thunk, logger]
-  : [thunk];
+  : [sagaMiddleware, thunk];
 
 const createReduxStore = (preloadedState = {}) => {
   // eslint-disable-next-line no-underscore-dangle
