@@ -1,16 +1,30 @@
-import { SIGN_IN, SIGN_OUT, SIGN_IN_SUCCESS, SIGNED_OUT } from 'state/action-types';
+import * as aT from 'state/action-types';
+import { getUid, isAnonymousSelector } from 'state/selectors';
 import firebase from 'firebase/app';
 import firebaseClient from '../../services/firebase-client';
 
-export const signIn = () => ({ type: SIGN_IN });
-export const signOut = () => {
-  // firebaseClient.signOut();
+export const signIn = () => ({ type: aT.SIGN_IN });
+export const signOut = () => ({ type: aT.SIGN_OUT });
 
-  return { type: SIGN_OUT };
+export const signInIfNeed = () => (dispatch, getState) => {
+  // TODO: add backoff                                                           !!!
+  const state = getState();
+  const uid = getUid(state);
+  // null - signed out, true - signed in anonymously, false - signed in w email
+  const isAnonymous = isAnonymousSelector(state);
+  console.log('Sign In UID: ', uid, ', is Anonynous: ', isAnonymous);
+
+  // is 2nd necessary (e.g. to check if auth requested already) ???
+  // during auth request "isAnonymous" will be true/false, but not null
+  // better to replace it by something like "isAuthenticating"
+  if (uid && isAnonymous !== null) {
+    return false;
+  }
+  return dispatch({ type: aT.SIGN_IN_ANON });
 };
 
 export const signInWithEmail = (email, password) => ({
-  type: SIGN_IN,
+  type: aT.SIGN_IN_EMAIL,
   payload: { email, password },
 });
 
@@ -27,12 +41,12 @@ export const processAuthStateChange = () => dispatch => (
         displayName, email, emailVerified, photoURL, providerData,
       } = user;
 
-      dispatch({ type: SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
+      dispatch({ type: aT.SIGN_IN_SUCCESS, payload: { uid, isAnonymous } });
     } else {
       // User is signed out
-      dispatch({ type: 'AUTH_STATE_CHANGE_NO_USER' });
+      dispatch({ type: aT.AUTH_STATE_CHANGE_NO_USER });
     }
   }, (error) => {
-    dispatch({ type: 'AUTH_STATE_CHANGE_ERROR', error });
+    dispatch({ type: aT.AUTH_STATE_CHANGE_ERROR, error });
   })
 );

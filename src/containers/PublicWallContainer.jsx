@@ -1,11 +1,12 @@
 import { connect } from 'react-redux';
 
-import { signIn } from 'state/auth';
+import { signInIfNeed } from 'state/auth';
 import {
   joinWall, leaveWall, fetchWallId, fetchPosts, checkClientId
 } from 'state/wall';
 import {
-  getUid, getWallId, getPosts, isSubscribedToWall, isConnectingToWall,
+  getUid, getWallId, getPosts,
+  isSubscribedToWall, isSubscribingToWall, isFetchingPosts,
 } from 'state/selectors';
 
 import PublicWall from 'components/PublicWall';
@@ -14,12 +15,13 @@ const mapStateToProps = state => ({
   clientUid: getUid(state),
   wallId: getWallId(state),
   posts: getPosts(state),
+  isFetchingPosts: isFetchingPosts(state),
   isSubscribed: isSubscribedToWall(state),
-  isConnecting: isConnectingToWall(state),
+  isSubscribing: isSubscribingToWall(state),
 });
 
 export default connect(mapStateToProps, {
-  signIn,
+  signInIfNeed,
   joinWall,
   leaveWall,
   fetchWallId,

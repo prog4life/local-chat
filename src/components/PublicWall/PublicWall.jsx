@@ -9,12 +9,13 @@ class PublicWall extends React.Component {
     clientUid: PropTypes.string,
     fetchPosts: PropTypes.func.isRequired,
     fetchWallId: PropTypes.func.isRequired,
-    isConnecting: PropTypes.bool.isRequired,
+    isFetchingPosts: PropTypes.bool.isRequired,
+    isSubscribing: PropTypes.bool.isRequired,
     isSubscribed: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object),
-    signIn: PropTypes.func.isRequired,
+    signInIfNeed: PropTypes.func.isRequired,
     wallId: PropTypes.string,
   }
 
@@ -28,30 +29,27 @@ class PublicWall extends React.Component {
   // for this component) and action creators/thunks
 
   componentDidMount() {
-    const { wallId, posts, signIn, fetchWallId, fetchPosts } = this.props;
+    const { wallId, posts, signInIfNeed, fetchWallId, fetchPosts } = this.props;
     
     if (!wallId) { // TODO: || prevCity !== currentCity
       fetchWallId('Miami');
       return;
     }
+
+    signInIfNeed();
+    this.joinWallConditionally(wallId);
   
     if (!posts || posts.length === 0) { // 2nd is optional
       fetchPosts({ wallId });
     }
-    
-    // this.signInIfNotLoggedIn();
-    signIn();
-    this.joinWallConditionally(wallId);
-
   }
 
   componentDidUpdate() {
-    const { wallId, signIn } = this.props;
+    const { wallId, signInIfNeed } = this.props;
 
-    console.log('PUBLIC WALL UPDATE');
+    console.log('PUBLIC WALL UPDATE props ', this.props);
 
-    // this.signInIfNotLoggedIn();
-    signIn();
+    signInIfNeed();
     this.joinWallConditionally(wallId);
   }
 
@@ -61,51 +59,112 @@ class PublicWall extends React.Component {
     leaveWall();
   }
   
-  signInIfNotLoggedIn() {
-    const { clientUid, signIn } = this.props;
+  // signInIfNotLoggedIn() {
+  //   const { clientUid, signInIfNeed } = this.props;
     
-    if (!clientUid) {
-      signIn(); // TODO: add backoff
-    }
-  }
+  //   if (!clientUid) {
+  //     signInIfNeed(); // TODO: add backoff
+  //   }
+  // }
 
   joinWallConditionally(wallId) {
-    const { isSubscribed, joinWall, isConnecting, clientUid } = this.props;
+    const { isSubscribed, joinWall, isSubscribing, clientUid } = this.props;
 
-    if (clientUid && wallId && !isSubscribed && !isConnecting) {
+    if (clientUid && wallId && !isSubscribed && !isSubscribing) {
       joinWall(clientUid, wallId); // TODO: add backoff
     }
   }
-
-  render() {
-    const { posts } = this.props;
-
+  
+  renderListGroup(contents) {
     return (
       <ListGroup>
-        {posts && posts.map(({
-          id, authorId, nickname, text, createdAt
-        }, index) => {
-          return (
-            <ListGroupItem key={id}>
-              {/* {`List Item ${index + 1}`} */}
-              <div style={{ backgroundColor: '#fdececa3' }}>
-                {`Author: ${nickname}`}
-              </div>
-              <div style={{ backgroundColor: '#fffdfd' }}>
-                {text}
-              </div>
-              <div style={{ backgroundColor: 'lemonchifon' }}>
-                {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
-              </div>
-              {' '}
-              <Link to={`/chats/${authorId}`}>
-                {'Chat'}
-              </Link>
-            </ListGroupItem>
-          );
-        })}
+        {contents}
       </ListGroup>
     );
+  }
+
+  render() {
+    const { posts, isSubscribing, isFetchingPosts } = this.props;
+    let listContent = null;
+    let listItemContent = null;
+    
+    switch (true) {
+      case (isSubscribing):
+        listItemContent = 'Connecting to wall...';
+        break;
+      case (isFetchingPosts && posts && posts.length > 0):
+        listItemContent = 'Updating posts...';
+        break;
+      case (isFetchingPosts):
+        listItemContent = 'Loading posts...';
+        break;
+      case (posts && posts.length === 0):
+        listItemContent = 'No posts to show. Try to change filter parameters';
+        break;
+      case (!posts):
+        listItemContent = 'Posts are not loaded yet';
+        break;
+      default:
+        listItemContent = 'Nothing to show. Try to refresh wall';
+    }
+    
+    if (posts && posts.length > 0) {
+      listContent = posts.map(({ id, authorId, nickname, text, createdAt }) => {
+        return (
+          <ListGroupItem key={id}>
+            {/* {`List Item ${index + 1}`} */}
+            <div style={{ backgroundColor: '#fdececa3' }}>
+              {`Author: ${nickname}`}
+            </div>
+            <div style={{ backgroundColor: '#fffdfd' }}>
+              {text}
+            </div>
+            <div style={{ backgroundColor: 'lemonchifon' }}>
+              {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
+            </div>
+            {' '}
+            <Link to={`/chats/${authorId}`}>
+              {'Chat'}
+            </Link>
+          </ListGroupItem>
+        );
+      });
+      return this.renderListGroup(listContent);
+    }
+
+    listContent = (
+      <ListGroupItem>
+        {listItemContent}
+      </ListGroupItem>
+    );
+    return this.renderListGroup(listContent);
+
+    // return (
+    //   <ListGroup>
+    //     {posts && posts.map(({
+    //       id, authorId, nickname, text, createdAt
+    //     }, index) => {
+    //       return (
+    //         <ListGroupItem key={id}>
+    //           {/* {`List Item ${index + 1}`} */}
+    //           <div style={{ backgroundColor: '#fdececa3' }}>
+    //             {`Author: ${nickname}`}
+    //           </div>
+    //           <div style={{ backgroundColor: '#fffdfd' }}>
+    //             {text}
+    //           </div>
+    //           <div style={{ backgroundColor: 'lemonchifon' }}>
+    //             {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
+    //           </div>
+    //           {' '}
+    //           <Link to={`/chats/${authorId}`}>
+    //             {'Chat'}
+    //           </Link>
+    //         </ListGroupItem>
+    //       );
+    //     })}
+    //   </ListGroup>
+    // );
   }
 }
 

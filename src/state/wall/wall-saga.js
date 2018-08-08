@@ -5,6 +5,7 @@ import {
 import {
   JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL,
   FETCH_POSTS, FETCH_POSTS_SUCCESS, FETCH_POSTS_FAIL,
+  FETCH_WALL_ID, FETCH_WALL_ID_SUCCESS, FETCH_WALL_ID_FAIL,
 } from 'state/action-types';
 import { getWallId } from 'state/selectors';
 import * as firestore from 'services/firestore';
@@ -27,9 +28,9 @@ export function* fetchWallIdByCity(action) {
     
     console.log('Received wall id: ', walls[0].id)
     
-    yield put({ type: 'FETCH_WALL_ID_SUCCESS', payload: walls[0].id }) // TEMP
+    yield put({ type: FETCH_WALL_ID_SUCCESS, payload: walls[0].id }) // TEMP
   } catch (error) {
-    yield put({ type: 'FETCH_WALL_ID_FAIL', error });
+    yield put({ type: FETCH_WALL_ID_FAIL, error });
   }
 }
 
@@ -38,6 +39,7 @@ export function* subscribeToWall(action) { // TODO: pass uid with action
     const { wallId } = action.payload;
     const response = yield call(firestore.subscribeToWall, action.payload);
     yield put({ type: JOIN_WALL_SUCCESS, wallId });
+
     // IDEA: or invoke it on JOIN_WALL_SUCCESS / FETCH_POSTS
     // yield call(fetchPostsFlow);
 
@@ -58,7 +60,7 @@ export function* createPostFlow({ message }) {
 
 // watcher sagas
 export function* watchWallActions() {
-  yield takeEvery('FETCH_WALL_ID', fetchWallIdByCity);
+  yield takeEvery(FETCH_WALL_ID, fetchWallIdByCity);
   yield takeEvery(JOIN_WALL, subscribeToWall);
   yield takeEvery(FETCH_POSTS, fetchPostsFlow);
 }

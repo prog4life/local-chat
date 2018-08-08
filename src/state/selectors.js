@@ -1,7 +1,6 @@
 // import { createSelector } from 'reselect';
 
 // client state slice
-export const getClientId = state => state.client.id;
 export const getUid = state => state.client.uid;
 export const isAnonymousSelector = state => state.client.isAnonymous;
 
@@ -16,8 +15,9 @@ export const getPosts = (state) => {
     ? Object.values(postsById) // OR: ids.map(id => postsById[id])
     : null;
 };
+export const isFetchingPosts = state => state.wall.isFetching;
 export const isSubscribedToWall = state => state.wall.isSubscribed;
-export const isConnectingToWall = state => state.wall.isConnecting;
+export const isSubscribingToWall = state => state.wall.isSubscribing;
 
 // chats state slice
 export const getChats = state => state.chats;

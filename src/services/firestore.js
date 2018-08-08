@@ -80,9 +80,9 @@ const updatePost = (message) => {
   postRef.set({ text: message }, { merge: true });
 };
 
-const subscribeToWall = (uid) => {
-  return wallRef('VmQhK1Bg5HFKnLMr6hZw').set(
-    { subscribers: { [uid]: true } },
+const subscribeToWall = ({ clientUid, wallId }) => {
+  return wallRef(wallId).set(
+    { subscribers: { [clientUid]: true } },
     { merge: true },
   );
 };

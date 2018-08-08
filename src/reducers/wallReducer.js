@@ -1,25 +1,21 @@
 import { combineReducers } from 'redux';
 
-import {
-  // LOAD_POSTS, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAIL, WEBSOCKET_CLOSED,
-  FETCH_POSTS, FETCH_POSTS_SUCCESS, FETCH_POSTS_FAIL,
-  JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL, WEBSOCKET_CLOSED,
-} from 'state/action-types';
+import * as aT from 'state/action-types';
 
 import { makeUnion } from './reducerUtils';
 
 // const initialState = {
 //   postsById: {},
 //   visiblePosts: [],
-//   isConnecting: false,
+//   isSubscribing: false,
 //   isSubscribed: false,
 // };
 
 const id = (state = null, action) => {
   switch (action.type) {
-    case 'FETCH_WALL_ID':
+    case aT.FETCH_WALL_ID:
       return null;
-    case 'FETCH_WALL_ID_SUCCESS':
+    case aT.FETCH_WALL_ID_SUCCESS:
       return action.payload;
     default:
       return state;
@@ -28,62 +24,87 @@ const id = (state = null, action) => {
 
 const postsById = (state = null, action) => {
   switch (action.type) {
-    case FETCH_POSTS: // TEMP:
+    case aT.FETCH_POSTS: // TEMP:
       return {};
-    case FETCH_POSTS_SUCCESS:
+    case aT.FETCH_POSTS_SUCCESS:
       return { ...state, ...action.payload.byId };
     default:
       return state;
   }
 };
 
+const isFetching = (state = false, action) => {
+  switch (action.type) {
+    case aT.FETCH_POSTS:
+      return true;
+    case aT.FETCH_POSTS_SUCCESS:
+    case aT.FETCH_POSTS_FAIL:
+      return false;
+    default:
+      return state;
+  }
+}
+
 const visiblePosts = (state = null, action) => {
   switch (action.type) {
-    case FETCH_POSTS: // TEMP:
+    case aT.FETCH_POSTS: // TEMP:
       return [];
-    case FETCH_POSTS_SUCCESS:
+    case aT.FETCH_POSTS_SUCCESS:
       return makeUnion(state, action.payload.ids);
     default:
       return state;
   }
 };
 
-const error = (state = null, action) => {
+const errors = (state = { posts: null, wallId: null }, action) => {
   switch (action.type) {
-    case FETCH_POSTS_FAIL:
+    case aT.FETCH_POSTS:
+      return { ...state, posts: null };
+    case aT.FETCH_WALL_ID:
+      return { ...state, wallId: null };
+    case aT.FETCH_POSTS_FAIL:
       return {
-        ...action.error, // TEMP
-        // code: action.error.code,
-        // message: action.error.message,
+        ...state,
+        posts: { ...action.error }, // TEMP
+        // posts: {
+        //   code: action.error.code,
+        //   message: action.error.message,
+        // },
       };
+    case aT.FETCH_WALL_ID_FAIL:
+      return {
+        ...state,
+        wallId: { ...action.error }, // TEMP
+        // wallId: {
+        //   code: action.error.code,
+        //   message: action.error.message,
+        // },
+      }
     default:
       return state;
   }
 };
 
-// attempt to subscribe to the wall
-const isConnecting = (state = false, action) => {
+// state of subscription to the wall request
+const isSubscribing = (state = false, action) => {
   switch (action.type) {
-    case JOIN_WALL:
+    case aT.JOIN_WALL:
       return true;
-    case JOIN_WALL_SUCCESS:
-    case JOIN_WALL_FAIL:
-    case LEAVE_WALL:
-    case WEBSOCKET_CLOSED:
+    case aT.JOIN_WALL_SUCCESS:
+    case aT.JOIN_WALL_FAIL:
+    case aT.LEAVE_WALL:
       return false;
     default:
       return state;
   }
 };
 
-// TODO: change to subscriptionStatus ?
 // whether this client subscribed to the wall or not
 const isSubscribed = (state = false, action) => {
   switch (action.type) {
-    case JOIN_WALL_SUCCESS:
+    case aT.JOIN_WALL_SUCCESS:
       return true;
-    case LEAVE_WALL:
-    case WEBSOCKET_CLOSED:
+    case aT.LEAVE_WALL:
       return false;
     default:
       return state;
@@ -93,8 +114,9 @@ const isSubscribed = (state = false, action) => {
 export default combineReducers({
   id,
   postsById,
+  isFetching,
   visiblePosts,
-  error,
-  isConnecting,
+  errors,
+  isSubscribing,
   isSubscribed,
 });
