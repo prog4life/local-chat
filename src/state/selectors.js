@@ -6,6 +6,7 @@ export const getUid = state => state.client.uid;
 export const isAnonymousSelector = state => state.client.isAnonymous;
 
 // wall state slice
+export const getWallId = state => state.wall.id;
 export const getPosts = (state) => {
   const { postsById } = state.wall;
   // const ids = postsById ? Object.keys(postsById) : [];

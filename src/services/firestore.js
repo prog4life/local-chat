@@ -1,14 +1,38 @@
+import firebase from 'firebase/app';
 import db from '../config/firebase';
 
 const wallsRef = db.collection('walls');
 // const wallRef = wallId => wallsRef.doc(wallId);
 const wallRef = wallId => db.doc(`walls/${wallId}`);
-const postsRef = () => (
-  wallRef('VmQhK1Bg5HFKnLMr6hZw').collection('posts')
+const postsRef = wallId => (
+  wallRef(wallId).collection('posts')
 );
 
-const getPosts = () => {
-  const postsColRef = postsRef();
+const deleteField = () => firebase.firestore.FieldValue.delete();
+// TODO: rename to request/retrieve...
+const getWallsByCity = (city) => {
+  // OR place, locality, location
+  const wallsQuery = wallsRef.where('city', '==', city);
+  const walls = [];
+
+  return wallsQuery.get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      const wallData = doc.data();
+      const wall = {
+        id: doc.id, // maybe add after wallData
+        ...wallData,
+      };
+
+      walls.push(wall);
+    });
+    console.log('walls ', walls);
+    return walls;
+  });
+};
+// TODO: rename to request/retrieve...
+const getPosts = (filter) => {
+  const postsColRef = postsRef(filter.wallId);
 
   // NOTE: Querying across subcollections is not currently supported in
   // Cloud Firestore. If you need to query data across collections, use
@@ -38,14 +62,15 @@ const createPost = (message) => {
   const wallDocRef = db.collection('walls').doc('VmQhK1Bg5HFKnLMr6hZw');
   const postRef = wallDocRef.collection('posts').doc('pVfcP0Bhf44hTljJ0Yf6');
 
-  postRef.add({ text: message });
-  // if need to use it rigth after creation:
-  // .add(...) and .doc().set(...) are completely equivalent                     !!!
+  // will generate new id for created post
+  postRef.add({ text: message }); // => settles with docRef (new id: docRef.id)
+
+  // if need to use document rigth after creation:
   // Add a new document with a generated id.
   const newWallRef = db.collection('walls').doc();
-
-  // later...
+  // use it later...
   newWallRef.set({ any: 'data' });
+  // .add(...) and .doc().set(...) are completely equivalent                     !!!
 };
 
 const updatePost = (message) => {
@@ -55,20 +80,34 @@ const updatePost = (message) => {
   postRef.set({ text: message }, { merge: true });
 };
 
-const subscribeToWall = async () => {
-  const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));
-
-  await delay(2000);
-
-  return Math.random() * 10 > 3
-    ? Promise.resolve({ success: true, response: 'OK' })
-    : Promise.reject(new Error('Sample rejection'));
-  /* to be implemented */
+const subscribeToWall = (uid) => {
+  return wallRef('VmQhK1Bg5HFKnLMr6hZw').set(
+    { subscribers: { [uid]: true } },
+    { merge: true },
+  );
 };
+
+// const subscribeToWall = async (uid) => {
+//   db.runTransaction((transaction) => {
+//     // This code may get re-run multiple times if there are conflicts.
+//     return transaction.
+    
+//   });
+// };
+
+const unsubscribeFromWall = (uid) => {
+  return wallRef('VmQhK1Bg5HFKnLMr6hZw').set(
+    { subscribers: { [uid]: true } },
+    { merge: true },
+  ).then(
+    result => console.log('Unsubsribe from wall result: ', result),
+    error => console.error(error),
+  );
+}
 
 export {
   wallsRef, wallRef, postsRef, getPosts, createPost, updatePost,
-  subscribeToWall, db as default,
+  getWallsByCity, subscribeToWall, unsubscribeFromWall, db as default,
 };
 
 // TODO: export each function separately +

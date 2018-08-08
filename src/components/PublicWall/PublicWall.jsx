@@ -7,39 +7,52 @@ class PublicWall extends React.Component {
   static propTypes = {
     // checkClientId: PropTypes.func.isRequired,
     clientUid: PropTypes.string,
+    fetchPosts: PropTypes.func.isRequired,
+    fetchWallId: PropTypes.func.isRequired,
     isConnecting: PropTypes.bool.isRequired,
     isSubscribed: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object),
     signIn: PropTypes.func.isRequired,
+    wallId: PropTypes.string,
   }
 
   static defaultProps = {
     clientUid: null,
     posts: null,
+    wallId: null,
   };
+  
+  // TODO: leave only posts, joinWallConditionally (as it is specific
+  // for this component) and action creators/thunks
 
   componentDidMount() {
-    const { clientUid, signIn } = this.props;
-    // prepareWebsocketAndClientId();
-    if (clientUid) {
-      this.joinWallConditionally();
-    } else {
-      signIn(); // TODO: add backoff
+    const { wallId, posts, signIn, fetchWallId, fetchPosts } = this.props;
+    
+    if (!wallId) { // TODO: || prevCity !== currentCity
+      fetchWallId('Miami');
+      return;
     }
+  
+    if (!posts || posts.length === 0) { // 2nd is optional
+      fetchPosts({ wallId });
+    }
+    
+    // this.signInIfNotLoggedIn();
+    signIn();
+    this.joinWallConditionally(wallId);
+
   }
 
   componentDidUpdate() {
-    const { clientUid, signIn } = this.props;
+    const { wallId, signIn } = this.props;
 
     console.log('PUBLIC WALL UPDATE');
 
-    if (clientUid) {
-      this.joinWallConditionally();
-    } else {
-      signIn(); // TODO: add backoff
-    }
+    // this.signInIfNotLoggedIn();
+    signIn();
+    this.joinWallConditionally(wallId);
   }
 
   componentWillUnmount() {
@@ -47,14 +60,20 @@ class PublicWall extends React.Component {
 
     leaveWall();
   }
+  
+  signInIfNotLoggedIn() {
+    const { clientUid, signIn } = this.props;
+    
+    if (!clientUid) {
+      signIn(); // TODO: add backoff
+    }
+  }
 
-  joinWallConditionally() {
-    const { isSubscribed, joinWall, isConnecting, checkClientId } = this.props;
+  joinWallConditionally(wallId) {
+    const { isSubscribed, joinWall, isConnecting, clientUid } = this.props;
 
-    // if (!isSubscribed && checkClientId(clientId)) {
-    if (!isSubscribed && !isConnecting) {
-      joinWall();
-      // joinWall(clientId);
+    if (clientUid && wallId && !isSubscribed && !isConnecting) {
+      joinWall(clientUid, wallId); // TODO: add backoff
     }
   }
 

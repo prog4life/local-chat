@@ -1,9 +1,10 @@
 const webpack = require('webpack');
 const path = require('path');
+const os = require('os');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-// const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 // const OptimizeCSSNanoPlugin = require('@intervolga/optimize-cssnano-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
@@ -20,6 +21,7 @@ process.traceDeprecation = true; // or run process with --trace-deprecation flag
 
 const env = process.env.NODE_ENV || 'development';
 const isProduction = env === 'production';
+const devMode = env !== 'production';
 
 console.log('env: ', env);
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
@@ -46,11 +48,11 @@ module.exports = {
     minimizer: [ // setting this overrides webpack 4 defaults
       new UglifyJSPlugin({
         cache: true,
-        parallel: 2, // if "true": os.cpus().length -1 (default)
+        parallel: os.cpus().length || 2, // "true": os.cpus().length - 1 (def)
         sourceMap: true, // set to true if you want JS source maps
       }),
       // use this or 'cssnano' or 'optimize-cssnano-plugin'
-      // new OptimizeCSSAssetsPlugin({}), // source maps are not created
+      new OptimizeCSSAssetsPlugin({}), // source maps are not created
     ],
     splitChunks: {
       chunks: 'all',
@@ -58,7 +60,7 @@ module.exports = {
     },
     // splitChunks: {
     //   cacheGroups: {
-    //     styles: { // to extract css to one file
+    //     styles: { // to extract CSS into one file
     //       name: 'styles',
     //       test: /\.css$/,
     //       chunks: 'all',
@@ -167,7 +169,7 @@ module.exports = {
         },
       },
       {
-        test: /\.(scss|css)$/, // OR /\.s?[ac]ss$/,
+        test: /\.(scss|css)$/, // OR /\.s?[ac]ss$/, OR /\.(sa|sc|c)ss$/,
         // TODO: consider to replace by more specific include's
         include: [
           // path.resolve(__dirname, 'src'),
@@ -187,7 +189,7 @@ module.exports = {
             options: {
               ident: 'postcss',
               // syntax: scssSyntax,
-              plugins: isProduction ? [autoprefixer, cssnano] : [],
+              plugins: isProduction ? [autoprefixer, /* cssnano */ ] : [],
               sourceMap: true,
             },
           },

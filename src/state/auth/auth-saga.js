@@ -1,9 +1,10 @@
 import {
-  SIGN_IN, SIGN_IN_SUCCESS, SIGN_IN_FAILURE, SIGN_OUT, SIGNED_OUT,
-} from 'state/action-types';
-import {
   call, put, take, takeEvery, takeLatest, all, select
 } from 'redux-saga/effects';
+import {
+  SIGN_IN, SIGN_IN_SUCCESS, SIGN_IN_FAILURE, SIGN_OUT, SIGNED_OUT,
+} from 'state/action-types';
+import { getUid, isAnonymousSelector } from 'state/selectors';
 // import firebase from 'firebase';
 import firebase from 'firebase/app';
 import firebaseClient from '../../services/firebase-client';
@@ -36,22 +37,30 @@ export function* authStateChangeSaga() {
 // }
 
 export function* signInSaga({ payload }) {
+  // TODO: add backoff                                              !!!
+  const state = yield select();
+  const uid = getUid(state);
+  // null - signed out, true - signed in anonymously, false - signed in
+  const isAnonymous = isAnonymousSelector(state);
+  console.log('Sign In UID: ', uid);
   // sign in anonymously
-  if (!payload) {
+  if (!payload && !uid) {
     try {
       yield call(firebaseClient.signInAnonymously);
     } catch (e) {
       yield put({ type: SIGN_IN_FAILURE, code: e.code, message: e.message });
     }
   }
-
   if (typeof payload !== 'object') {
+    console.warn('SIGN IN PAYLOAD is not an object');
+    return;
+  }
+  if (uid && isAnonymous === false) { // signed in with email already
+    console.warn('SIGNED IN with email already');
     return;
   }
 
   const { email, password } = payload;
-  const state = yield select();
-  console.log('Sign In STATE: ', state);
 
   // if (state.client.uid && state.client.isAnonymous) {
   //   linkAnonymousUser(email, password);

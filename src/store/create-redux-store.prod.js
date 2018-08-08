@@ -10,16 +10,16 @@ import { wallSaga } from 'state/wall';
 const sagaMiddleware = createSagaMiddleware();
 // must be the last middleware in chain
 // TEMP:
-// const logger = createLogger({
-//   duration: true,
-//   predicate: (getState, action) => {
-//     const hiddenTypes = [];
-//     return !hiddenTypes.some(type => type === action.type);
-//   }
-// });
+const logger = createLogger({
+  duration: true,
+  predicate: (getState, action) => {
+    const hiddenTypes = [];
+    return !hiddenTypes.some(type => type === action.type);
+  }
+});
 
-// const middleware = [sagaMiddleware, thunk, logger]; // TEMP:
-const middleware = [sagaMiddleware, thunk];
+const middleware = [sagaMiddleware, thunk, logger]; // TEMP:
+// const middleware = [sagaMiddleware, thunk];
 
 const createReduxStore = (preloadedState = {}) => {
   // eslint-disable-next-line no-underscore-dangle

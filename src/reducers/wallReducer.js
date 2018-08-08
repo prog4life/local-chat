@@ -15,6 +15,17 @@ import { makeUnion } from './reducerUtils';
 //   isSubscribed: false,
 // };
 
+const id = (state = null, action) => {
+  switch (action.type) {
+    case 'FETCH_WALL_ID':
+      return null;
+    case 'FETCH_WALL_ID_SUCCESS':
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
 const postsById = (state = null, action) => {
   switch (action.type) {
     case FETCH_POSTS: // TEMP:
@@ -80,6 +91,7 @@ const isSubscribed = (state = false, action) => {
 };
 
 export default combineReducers({
+  id,
   postsById,
   visiblePosts,
   error,

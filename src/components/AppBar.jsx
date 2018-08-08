@@ -30,8 +30,8 @@ class AppBar extends React.Component {
     const { isOpen } = this.state;
 
     return (
-      // <Navbar color="light" fixed="top">
-      <Navbar light style={{ backgroundColor: '#fdecece3' }} expand="md">
+      // <Navbar color="faded / light / #fdecec" fixed="top">
+      <Navbar className="app-bar" light expand="md">
         <NavbarBrand href="/">
           <AppLogo />
         </NavbarBrand>
