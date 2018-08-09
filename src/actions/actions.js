@@ -1,4 +1,4 @@
-import shortid from 'shortid';
+import uuidv4 from 'uuid/v4';
 import {
   SEND_MESSAGE_ATTEMPT, SEND_MESSAGE_SUCCESS, SEND_MESSAGE_FAIL,
   RECEIVE_MESSAGE, RECEIVE_TYPING, STOP_TYPING_NOTIFICATION,
@@ -116,7 +116,7 @@ export const sendTyping = (nickname, clientId) => (dispatch) => {
 export const sendMessage = text => (dispatch, getState) => {
   const { clientId, unsent, nickname } = getState();
   const message = {
-    id: shortid.generate(),
+    id: uuidv4(),
     // TODO: add timestamp here?
     clientId,
     nickname,

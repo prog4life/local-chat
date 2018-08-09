@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import shortId from 'shortid';
+import uuidv4 from 'uuid/v4';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 
 import ChatPreview from './ChatPreview';
@@ -45,7 +45,7 @@ class ChatsList extends PureComponent {
       <ListGroup>
         {chats.map((chat) => {
           return (
-            <ListGroupItem key={shortId.generate()}>
+            <ListGroupItem key={uuidv4()}>
               <ChatPreview
                 chat={chat}
                 onClose={this.handleChatItemClose}

@@ -4,7 +4,7 @@ import client from './clientReducer';
 import chats from './chatsReducer';
 import messages from './messagesReducer';
 import wall from './wallReducer';
-import websocket from './websocketReducer';
+
 import {
   // nickname,
   // clientId,
@@ -22,5 +22,4 @@ export default combineReducers({
   wall,
   whoIsTyping,
   unsent,
-  websocket,
 });
