@@ -5,14 +5,20 @@ import {
   Form, FormGroup, Label, Input, Button,
 } from 'reactstrap';
 
-import { createPost } from 'state/wall';
+import { addPost } from 'state/posts';
+import { getUid } from 'state/selectors';
 
-class WallPostForm extends React.Component {
+class AddPostForm extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
-    const { createNewPost } = this.props;
+    const { createPost, uid } = this.props;
 
-    createNewPost(event.target.elements['new-post'].value);
+    createPost({
+      author: uid,
+      nickname: 'Spooky',
+      text: event.target.elements['new-post'].value,
+      createdAt: Date.now(),
+    });
   }
 
   render() {
@@ -37,4 +43,8 @@ class WallPostForm extends React.Component {
   }
 }
 
-export default connect(null, { createNewPost: createPost })(WallPostForm);
+const mapStateToProps = state => ({
+  uid: getUid(state),
+});
+
+export default connect(mapStateToProps, { createPost: addPost })(AddPostForm);

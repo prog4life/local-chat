@@ -7,6 +7,9 @@ const wallRef = wallId => db.doc(`walls/${wallId}`);
 const postsRef = wallId => (
   wallRef(wallId).collection('posts')
 );
+const postDocRef = (wallId, postId) => (
+  wallRef(wallId).doc(`posts/${postId}`)
+);
 
 const deleteField = () => firebase.firestore.FieldValue.delete();
 // TODO: rename to request/retrieve...
@@ -58,19 +61,33 @@ const getPosts = (filter) => {
   });
 };
 
-const createPost = (message) => {
-  const wallDocRef = db.collection('walls').doc('VmQhK1Bg5HFKnLMr6hZw');
-  const postRef = wallDocRef.collection('posts').doc('pVfcP0Bhf44hTljJ0Yf6');
-
-  // will generate new id for created post
-  postRef.add({ text: message }); // => settles with docRef (new id: docRef.id)
-
+const createPost = (wallId, newPost) => {
+  const postsColRef = postsRef(wallId);
+  delete newPost.id;
+  const post = {
+    ...newPost,
+    createdAt: firebase.firestore.Timestamp.fromMillis(newPost.createdAt),
+  };
+  
   // if need to use document rigth after creation:
   // Add a new document with a generated id.
-  const newWallRef = db.collection('walls').doc();
+  //    const newWallRef = db.collection('walls').doc();
   // use it later...
-  newWallRef.set({ any: 'data' });
+  //    newWallRef.set({ any: 'data' });
   // .add(...) and .doc().set(...) are completely equivalent                     !!!
+
+  // will generate new id for created post
+  return postsColRef.add(post) // => settles with docRef (new id: docRef.id)
+    .then(
+      newPostRef => ({ id: newPostRef.id }),
+      error => ({ error }),
+    );
+};
+
+const deletePost = (wallId, postId) => {
+  const postRef = postDocRef(wallId, postId);
+
+  postRef.delete();
 };
 
 const updatePost = (message) => {
@@ -106,7 +123,7 @@ const unsubscribeFromWall = (uid) => {
 }
 
 export {
-  wallsRef, wallRef, postsRef, getPosts, createPost, updatePost,
+  wallsRef, wallRef, postsRef, getPosts, createPost, deletePost, updatePost,
   getWallsByCity, subscribeToWall, unsubscribeFromWall, db as default,
 };
 

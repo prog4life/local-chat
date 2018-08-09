@@ -47,7 +47,7 @@ class PublicWall extends React.Component {
   componentDidUpdate() {
     const { wallId, signInIfNeed } = this.props;
 
-    console.log('PUBLIC WALL UPDATE props ', this.props);
+    console.log('PUBLIC WALL UPDATE');
 
     signInIfNeed();
     this.joinWallConditionally(wallId);
@@ -109,7 +109,7 @@ class PublicWall extends React.Component {
     }
     
     if (posts && posts.length > 0) {
-      listContent = posts.map(({ id, authorId, nickname, text, createdAt }) => {
+      listContent = posts.map(({ id, author, nickname, text, createdAt }) => {
         return (
           <ListGroupItem key={id}>
             {/* {`List Item ${index + 1}`} */}
@@ -123,7 +123,7 @@ class PublicWall extends React.Component {
               {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
             </div>
             {' '}
-            <Link to={`/chats/${authorId}`}>
+            <Link to={`/chats/${author}`}>
               {'Chat'}
             </Link>
           </ListGroupItem>

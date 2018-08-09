@@ -49,15 +49,6 @@ export function* subscribeToWall(action) { // TODO: pass uid with action
   }
 }
 
-export function* createPostFlow({ message }) {
-  try {
-    firestore.createPost(message);
-    yield put({ type: 'POST_CREATED', message });
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 // watcher sagas
 export function* watchWallActions() {
   yield takeEvery(FETCH_WALL_ID, fetchWallIdByCity);
@@ -65,13 +56,8 @@ export function* watchWallActions() {
   yield takeEvery(FETCH_POSTS, fetchPostsFlow);
 }
 
-export function* watchCreatePost() {
-  yield takeEvery('CREATE_POST', createPostFlow);
-}
-
 export default function* wallSaga() {
   yield all([
     watchWallActions(),
-    watchCreatePost(),
   ]);
 }

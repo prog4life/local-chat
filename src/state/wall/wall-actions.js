@@ -16,8 +16,3 @@ export const leaveWall = () => ({ type: LEAVE_WALL });
 export const fetchWallId = city => ({ type: FETCH_WALL_ID, city });
 
 export const fetchPosts = filter => ({ type: FETCH_POSTS, filter });
-
-export const createPost = message => ({
-  type: 'CREATE_POST',
-  message,
-});

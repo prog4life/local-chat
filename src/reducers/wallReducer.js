@@ -28,6 +28,23 @@ const postsById = (state = null, action) => {
       return {};
     case aT.FETCH_POSTS_SUCCESS:
       return { ...state, ...action.payload.byId };
+    case aT.ADD_POST:
+      return { ...state, [action.payload.id]: { ...action.payload } };
+    case aT.ADD_POST_SUCCESS: {
+      const nextState = { ...state };
+      nextState[action.payload.id] = {
+        // retrieve data from post object stored under temp id
+        ...nextState[action.meta.tempId], // temp id will be rewrited by ->
+        ...action.payload, // contains permanent id assigned by firestore
+      };
+      delete nextState[action.meta.tempId];
+      return nextState;
+    }
+    case aT.ADD_POST_FAIL: {
+      const nextState = { ...state };
+      delete nextState[action.meta.tempId];
+      return nextState;
+    }
     default:
       return state;
   }

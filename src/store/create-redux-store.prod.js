@@ -6,6 +6,7 @@ import appReducer from 'reducers';
 
 import { authSaga } from 'state/auth';
 import { wallSaga } from 'state/wall';
+import { postsSaga } from 'state/posts';
 
 const sagaMiddleware = createSagaMiddleware();
 // must be the last middleware in chain
@@ -34,6 +35,7 @@ const createReduxStore = (preloadedState = {}) => {
 
   sagaMiddleware.run(authSaga);
   sagaMiddleware.run(wallSaga);
+  sagaMiddleware.run(postsSaga);
 
   return store;
 };
