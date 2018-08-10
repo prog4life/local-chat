@@ -7,7 +7,7 @@ import Post from './Post';
 class PublicWall extends React.Component {
   static propTypes = {
     // checkClientId: PropTypes.func.isRequired,
-    clientUid: PropTypes.string,
+    deletedPosts: PropTypes.arrayOf(PropTypes.string).isRequired,
     deletePost: PropTypes.func.isRequired,
     fetchPosts: PropTypes.func.isRequired,
     fetchWallId: PropTypes.func.isRequired,
@@ -18,11 +18,12 @@ class PublicWall extends React.Component {
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object),
     signInIfNeed: PropTypes.func.isRequired,
+    uid: PropTypes.string,
     wallId: PropTypes.string,
   }
 
   static defaultProps = {
-    clientUid: null,
+    uid: null,
     posts: null,
     wallId: null,
   };
@@ -32,26 +33,28 @@ class PublicWall extends React.Component {
 
   componentDidMount() {
     const {
-      wallId, posts, signInIfNeed, fetchWallId, fetchPosts,
+      wallId, posts, signInIfNeed, fetchWallId, fetchPosts, isFetchingPosts,
     } = this.props;
 
-    if (!wallId) { // TODO: || prevCity !== currentCity
+    signInIfNeed();
+    // TODO: || prevCity !== currentCity
+    // TRY to use for this getSnapshotBeforeUpdate
+    if (!wallId) {
       fetchWallId('Miami');
       return;
     }
-
-    signInIfNeed();
     this.joinWallConditionally(wallId);
 
-    if (!posts || posts.length === 0) { // 2nd is optional
+    // posts.length === 0 is optional
+    if (!isFetchingPosts && (!posts || posts.length === 0)) {
       fetchPosts({ wallId });
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { wallId, signInIfNeed } = this.props;
 
-    console.log('PUBLIC WALL UPDATE');
+    console.log('PublicWall UPDATE, prevProps: ', prevProps, ' this.props: ', this.props);
 
     signInIfNeed();
     this.joinWallConditionally(wallId);
@@ -64,28 +67,30 @@ class PublicWall extends React.Component {
   }
 
   // signInIfNotLoggedIn() {
-  //   const { clientUid, signInIfNeed } = this.props;
+  //   const { uid, signInIfNeed } = this.props;
 
-  //   if (!clientUid) {
+  //   if (!uid) {
   //     signInIfNeed(); // TODO: add backoff
   //   }
   // }
 
   handleDeletePost = id => () => {
-    const { deletePost, clientUid, posts } = this.props;
+    const { deletePost, uid, posts, deletedPosts } = this.props;
 
-    // TODO:
-    // if (clientUid === posts[id].author) {
-    //   deletePost(id);
-    // }
-    deletePost(id);
+    // TODO: add || uid === posts[id].author ?
+    // removal of post with such id is already requested, but not finished
+    if (!deletedPosts.includes(id)) {
+      deletePost(id);
+    }
+    // TEMP:
+    console.log(`Deleting of post ${id} is already requested`);
   }
 
   joinWallConditionally(wallId) {
-    const { isSubscribed, joinWall, isSubscribing, clientUid } = this.props;
+    const { isSubscribed, joinWall, isSubscribing, uid } = this.props;
 
-    if (clientUid && wallId && !isSubscribed && !isSubscribing) {
-      joinWall(clientUid, wallId); // TODO: add backoff
+    if (uid && wallId && !isSubscribed && !isSubscribing) {
+      joinWall(uid, wallId); // TODO: add backoff
     }
   }
 
@@ -96,15 +101,17 @@ class PublicWall extends React.Component {
   )
 
   render() {
-    const { posts, clientUid, isSubscribing, isFetchingPosts } = this.props;
+    const { posts, uid, isSubscribing, isSubscribed, isFetchingPosts } = this.props;
     let listContent = null;
     let listItemContent = null;
 
     switch (true) {
-      case (isSubscribing):
+      case (isSubscribing || !isSubscribed):
+      // case (isFetchingPosts && !isSubscribed): // TEMP
         listItemContent = 'Connecting to wall...';
         break;
       case (isFetchingPosts && posts && posts.length > 0):
+        // must be loading indicator on top of visible posts
         listItemContent = 'Updating posts...';
         break;
       case (isFetchingPosts):
@@ -124,7 +131,7 @@ class PublicWall extends React.Component {
       listContent = posts.map((post) => {
         return (
           <ListGroupItem key={post.id}>
-            <Post uid={clientUid} {...post} onDelete={this.handleDeletePost} />
+            <Post uid={uid} {...post} onDelete={this.handleDeletePost} />
           </ListGroupItem>
         );
       });

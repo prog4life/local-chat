@@ -14,13 +14,15 @@ export const getPosts = (state) => {
   const { postsById } = state.posts;
   // const ids = postsById ? Object.keys(postsById) : [];
 
-  return postsById // was ? ids.map(id => postsById[id])
+  return postsById
+    // was ids.map(id => postsById[id])
     ? Object.values(postsById).filter(post => (
       !state.posts.toBeRemoved.includes(post.id)
     ))
     : null;
 };
 export const isFetchingPosts = state => state.posts.isFetching;
+export const getDeletedPosts = state => state.posts.toBeRemoved;
 export const isPostRemovalRequested = (state, id) => (
   state.posts.toBeRemoved.includes(id)
 );

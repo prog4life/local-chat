@@ -3,6 +3,17 @@ import * as aT from 'state/action-types';
 import * as firestore from 'services/firestore';
 import { getWallId, isPostRemovalRequested } from 'state/selectors';
 
+export function* fetchPostsFlow(action) {
+  try {
+    const posts = yield call(firestore.getPosts, action.filter);
+    const ids = Object.keys(posts);
+
+    yield put({ type: aT.FETCH_POSTS_SUCCESS, payload: { ids, byId: posts } });
+  } catch (error) {
+    yield put({ type: aT.FETCH_POSTS_FAIL, error });
+  }
+}
+
 export function* createNewPost(action) {
   const state = yield select();
   const wallId = getWallId(state);
@@ -31,7 +42,7 @@ export function* deletePostById({ payload: { id }}) {
     console.log('Post deletion command is sent already, id: ', id);
     return;
   }
-  console.log('Send post deletion command to firestore, id: ', id);
+  console.log('Sending post deletion command to firestore, id: ', id);
 }
 
 // export function* createPostFlow({ message }) {
@@ -44,6 +55,7 @@ export function* deletePostById({ payload: { id }}) {
 // }
 
 export function* watchPostsActions() {
+  yield takeEvery(aT.FETCH_POSTS, fetchPostsFlow);
   yield takeEvery(aT.ADD_POST, createNewPost);
   yield takeEvery(aT.DELETE_POST, deletePostById);
 }

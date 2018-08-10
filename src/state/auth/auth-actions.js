@@ -12,12 +12,13 @@ export const signInIfNeed = () => (dispatch, getState) => {
   const uid = getUid(state);
   // null - signed out, true - signed in anonymously, false - signed in w email
   const isAnonymous = isAnonymousSelector(state);
-  console.log('Sign In UID: ', uid, ', is Anonynous: ', isAnonymous);
+  console.log('Sign In UID: ', uid, ', is Anonymous: ', isAnonymous);
 
   // is 2nd necessary (e.g. to check if auth requested already) ???
   // during auth request "isAnonymous" will be true/false, but not null
   // better to replace it by something like "isAuthenticating"
-  if (uid && isAnonymous !== null) {
+  if (uid || isAnonymous !== null) {
+    console.log('Has uid or isAnonymous is not null (auth request in progress)');
     return false;
   }
   return dispatch({ type: aT.SIGN_IN_ANON });

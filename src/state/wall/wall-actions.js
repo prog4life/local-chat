@@ -1,5 +1,5 @@
 import {
-  JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL, FETCH_POSTS, FETCH_WALL_ID,
+  JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL, FETCH_WALL_ID,
 } from 'state/action-types';
 
 export const joinWall = (clientUid, wallId) => ({
@@ -14,5 +14,3 @@ export const joinWallFail = () => ({ type: JOIN_WALL_FAIL });
 export const leaveWall = () => ({ type: LEAVE_WALL });
 
 export const fetchWallId = city => ({ type: FETCH_WALL_ID, city });
-
-export const fetchPosts = filter => ({ type: FETCH_POSTS, filter });

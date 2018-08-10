@@ -2,6 +2,8 @@ import firebase from 'firebase/app';
 
 const auth = () => firebase.auth();
 
+// TODO: use getters
+
 const firebaseClient = {
   signInAnonymously() {
     return auth().signInAnonymously().catch((error) => {

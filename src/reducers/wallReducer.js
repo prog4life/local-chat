@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import * as aT from 'state/action-types';
 
+// TODO: change to wallIdByCity: { 'CityName': 'some-city-id' }
 const id = (state = null, action) => {
   switch (action.type) {
     case aT.FETCH_WALL_ID:

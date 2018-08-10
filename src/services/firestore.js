@@ -12,16 +12,18 @@ const postDocRef = (wallId, postId) => (
 );
 
 const deleteField = () => firebase.firestore.FieldValue.delete();
-// TODO: rename to request/retrieve...
-const getWallsByCity = (city) => {
+// TODO: rename to request/retrieve/receive/gain...
+const obtainWallIdByCity = (city) => {
   // OR place, locality, location
   const wallsQuery = wallsRef.where('city', '==', city);
   const walls = [];
 
   return wallsQuery.get().then((querySnapshot) => {
+    // querySnapshot.docs -> array of doc's
+    // querySnapshot.size -> number of doc's in query snapshot
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
-      const wallData = doc.data();
+      const wallData = doc.data(); // OR: .get(<field>)
       const wall = {
         id: doc.id, // maybe add after wallData
         ...wallData,
@@ -29,8 +31,9 @@ const getWallsByCity = (city) => {
 
       walls.push(wall);
     });
-    console.log('walls ', walls);
-    return walls;
+    console.log('obtain walls ', walls);
+
+    return walls[0].id;
   });
 };
 // TODO: rename to request/retrieve...
@@ -56,7 +59,7 @@ const getPosts = (filter) => {
         createdAt: post.createdAt.toMillis(),
       };
     });
-    console.log('posts ', posts);
+    console.log('get posts ', posts);
     return posts;
   });
 };
@@ -97,7 +100,7 @@ const updatePost = (message) => {
   postRef.set({ text: message }, { merge: true });
 };
 
-// TODO: try to get wall with where() and add subscriber to it within single query
+// TODO: try to get wall with where() and add subscribe to it within single query
 
 const subscribeToWall = ({ clientUid, wallId }) => {
   return wallRef(wallId).set(
@@ -122,11 +125,11 @@ const unsubscribeFromWall = (uid) => {
     result => console.log('Unsubsribe from wall result: ', result),
     error => console.error(error),
   );
-}
+};
 
 export {
   wallsRef, wallRef, postsRef, getPosts, createPost, deletePost, updatePost,
-  getWallsByCity, subscribeToWall, unsubscribeFromWall, db as default,
+  obtainWallIdByCity, subscribeToWall, unsubscribeFromWall, db as default,
 };
 
 // TODO: export each function separately +

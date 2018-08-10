@@ -7,43 +7,35 @@ import {
   FETCH_POSTS, FETCH_POSTS_SUCCESS, FETCH_POSTS_FAIL,
   FETCH_WALL_ID, FETCH_WALL_ID_SUCCESS, FETCH_WALL_ID_FAIL,
 } from 'state/action-types';
-import { getWallId } from 'state/selectors';
+import { getWallId, isFetchingPosts } from 'state/selectors';
 import * as firestore from 'services/firestore';
 
 // worker sagas
-export function* fetchPostsFlow(action) {
+export function* fetchWallIdByCity({ city }) {
   try {
-    const posts = yield call(firestore.getPosts, action.filter);
-    const ids = Object.keys(posts);
-
-    yield put({ type: FETCH_POSTS_SUCCESS, payload: { ids, byId: posts } });
-  } catch (error) {
-    yield put({ type: FETCH_POSTS_FAIL, error });
-  }
-}
-
-export function* fetchWallIdByCity(action) {
-  try {
-    const walls = yield call(firestore.getWallsByCity, action.city);
+    const wallId = yield call(firestore.obtainWallIdByCity, city);
+    console.log('Received wall id: ', wallId);
     
-    console.log('Received wall id: ', walls[0].id)
-    
-    yield put({ type: FETCH_WALL_ID_SUCCESS, payload: walls[0].id }) // TEMP
+    yield put({ type: FETCH_WALL_ID_SUCCESS, payload: wallId });
   } catch (error) {
     yield put({ type: FETCH_WALL_ID_FAIL, error });
   }
 }
 
-export function* subscribeToWall(action) { // TODO: pass uid with action
+export function* subscribeToWall({ payload }) { // TODO: pass uid with action
+  let { wallId } = payload;
   try {
-    const { wallId } = action.payload;
-    const response = yield call(firestore.subscribeToWall, action.payload);
+    const response = yield call(firestore.subscribeToWall, payload);
     yield put({ type: JOIN_WALL_SUCCESS, wallId });
 
-    // IDEA: or invoke it on JOIN_WALL_SUCCESS / FETCH_POSTS
-    // yield call(fetchPostsFlow);
+    const state = yield select();
+    const isFetching = isFetchingPosts(state);
 
-    yield put({ type: FETCH_POSTS, filter: { wallId } });
+    wallId = wallId || getWallId(state);
+
+    if (!isFetching) {
+      yield put({ type: FETCH_POSTS, filter: { wallId } });
+    }
   } catch (error) {
     yield put({ type: JOIN_WALL_FAIL, error });
   }
@@ -53,7 +45,6 @@ export function* subscribeToWall(action) { // TODO: pass uid with action
 export function* watchWallActions() {
   yield takeEvery(FETCH_WALL_ID, fetchWallIdByCity);
   yield takeEvery(JOIN_WALL, subscribeToWall);
-  yield takeEvery(FETCH_POSTS, fetchPostsFlow);
 }
 
 export default function* wallSaga() {
