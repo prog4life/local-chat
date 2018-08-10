@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ListGroup, ListGroupItem } from 'reactstrap';
-import { Link } from 'react-router-dom';
+
+import Post from './Post';
 
 class PublicWall extends React.Component {
   static propTypes = {
     // checkClientId: PropTypes.func.isRequired,
     clientUid: PropTypes.string,
+    deletePost: PropTypes.func.isRequired,
     fetchPosts: PropTypes.func.isRequired,
     fetchWallId: PropTypes.func.isRequired,
     isFetchingPosts: PropTypes.bool.isRequired,
-    isSubscribing: PropTypes.bool.isRequired,
     isSubscribed: PropTypes.bool.isRequired,
+    isSubscribing: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object),
@@ -24,13 +26,15 @@ class PublicWall extends React.Component {
     posts: null,
     wallId: null,
   };
-  
+
   // TODO: leave only posts, joinWallConditionally (as it is specific
   // for this component) and action creators/thunks
 
   componentDidMount() {
-    const { wallId, posts, signInIfNeed, fetchWallId, fetchPosts } = this.props;
-    
+    const {
+      wallId, posts, signInIfNeed, fetchWallId, fetchPosts,
+    } = this.props;
+
     if (!wallId) { // TODO: || prevCity !== currentCity
       fetchWallId('Miami');
       return;
@@ -38,7 +42,7 @@ class PublicWall extends React.Component {
 
     signInIfNeed();
     this.joinWallConditionally(wallId);
-  
+
     if (!posts || posts.length === 0) { // 2nd is optional
       fetchPosts({ wallId });
     }
@@ -58,14 +62,24 @@ class PublicWall extends React.Component {
 
     leaveWall();
   }
-  
+
   // signInIfNotLoggedIn() {
   //   const { clientUid, signInIfNeed } = this.props;
-    
+
   //   if (!clientUid) {
   //     signInIfNeed(); // TODO: add backoff
   //   }
   // }
+
+  handleDeletePost = id => () => {
+    const { deletePost, clientUid, posts } = this.props;
+
+    // TODO:
+    // if (clientUid === posts[id].author) {
+    //   deletePost(id);
+    // }
+    deletePost(id);
+  }
 
   joinWallConditionally(wallId) {
     const { isSubscribed, joinWall, isSubscribing, clientUid } = this.props;
@@ -74,20 +88,18 @@ class PublicWall extends React.Component {
       joinWall(clientUid, wallId); // TODO: add backoff
     }
   }
-  
-  renderListGroup(contents) {
-    return (
-      <ListGroup>
-        {contents}
-      </ListGroup>
-    );
-  }
+
+  renderListGroup = contents => (
+    <ListGroup>
+      {contents}
+    </ListGroup>
+  )
 
   render() {
-    const { posts, isSubscribing, isFetchingPosts } = this.props;
+    const { posts, clientUid, isSubscribing, isFetchingPosts } = this.props;
     let listContent = null;
     let listItemContent = null;
-    
+
     switch (true) {
       case (isSubscribing):
         listItemContent = 'Connecting to wall...';
@@ -107,25 +119,12 @@ class PublicWall extends React.Component {
       default:
         listItemContent = 'Nothing to show. Try to refresh wall';
     }
-    
+
     if (posts && posts.length > 0) {
-      listContent = posts.map(({ id, author, nickname, text, createdAt }) => {
+      listContent = posts.map((post) => {
         return (
-          <ListGroupItem key={id}>
-            {/* {`List Item ${index + 1}`} */}
-            <div style={{ backgroundColor: '#fdececa3' }}>
-              {`Author: ${nickname}`}
-            </div>
-            <div style={{ backgroundColor: '#fffdfd' }}>
-              {text}
-            </div>
-            <div style={{ backgroundColor: 'lemonchifon' }}>
-              {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
-            </div>
-            {' '}
-            <Link to={`/chats/${author}`}>
-              {'Chat'}
-            </Link>
+          <ListGroupItem key={post.id}>
+            <Post uid={clientUid} {...post} onDelete={this.handleDeletePost} />
           </ListGroupItem>
         );
       });

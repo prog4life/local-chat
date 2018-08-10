@@ -8,5 +8,5 @@ export const addPost = postData => ({
 
 export const deletePost = postId => ({
   type: aT.DELETE_POST,
-  payload: { postId },
+  payload: { id: postId },
 })

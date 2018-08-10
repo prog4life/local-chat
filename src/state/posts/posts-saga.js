@@ -1,7 +1,7 @@
 import { call, put, takeEvery, select, all } from 'redux-saga/effects';
 import * as aT from 'state/action-types';
 import * as firestore from 'services/firestore';
-import { getWallId } from 'state/selectors';
+import { getWallId, isPostRemovalRequested } from 'state/selectors';
 
 export function* createNewPost(action) {
   const state = yield select();
@@ -23,6 +23,17 @@ export function* createNewPost(action) {
   });
 }
 
+export function* deletePostById({ payload: { id }}) {
+  const state = yield select();
+  const isRemovalRequested = isPostRemovalRequested(state, id);
+
+  if (isRemovalRequested) {
+    console.log('Post deletion command is sent already, id: ', id);
+    return;
+  }
+  console.log('Send post deletion command to firestore, id: ', id);
+}
+
 // export function* createPostFlow({ message }) {
 //   try {
 //     firestore.createPost(message);
@@ -34,6 +45,7 @@ export function* createNewPost(action) {
 
 export function* watchPostsActions() {
   yield takeEvery(aT.ADD_POST, createNewPost);
+  yield takeEvery(aT.DELETE_POST, deletePostById);
 }
 
 export default function* postsSaga() {

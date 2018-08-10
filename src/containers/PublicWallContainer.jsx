@@ -2,8 +2,9 @@ import { connect } from 'react-redux';
 
 import { signInIfNeed } from 'state/auth';
 import {
-  joinWall, leaveWall, fetchWallId, fetchPosts, checkClientId
+  joinWall, leaveWall, fetchWallId, fetchPosts, checkClientId,
 } from 'state/wall';
+import { deletePost } from 'state/posts';
 import {
   getUid, getWallId, getPosts,
   isSubscribedToWall, isSubscribingToWall, isFetchingPosts,
@@ -25,6 +26,7 @@ export default connect(mapStateToProps, {
   joinWall,
   leaveWall,
   fetchWallId,
+  deletePost,
   fetchPosts,
   checkClientId,
 })(PublicWall);

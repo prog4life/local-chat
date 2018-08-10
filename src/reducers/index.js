@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 import client from './clientReducer';
 import chats from './chatsReducer';
 import messages from './messagesReducer';
+import posts from './postsReducer';
 import wall from './wallReducer';
 
 import {
@@ -19,6 +20,7 @@ export default combineReducers({
   // clientId,
   chats,
   messages,
+  posts,
   wall,
   whoIsTyping,
   unsent,

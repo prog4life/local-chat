@@ -97,6 +97,8 @@ const updatePost = (message) => {
   postRef.set({ text: message }, { merge: true });
 };
 
+// TODO: try to get wall with where() and add subscriber to it within single query
+
 const subscribeToWall = ({ clientUid, wallId }) => {
   return wallRef(wallId).set(
     { subscribers: { [clientUid]: true } },
