@@ -10,7 +10,7 @@ const postsRef = wallId => (
 const postDocRef = (wallId, postId) => (
   wallRef(wallId).doc(`posts/${postId}`)
 );
-
+ 
 const deleteField = () => firebase.firestore.FieldValue.delete();
 // TODO: rename to request/retrieve/receive/gain...
 const obtainWallIdByCity = (city) => {
