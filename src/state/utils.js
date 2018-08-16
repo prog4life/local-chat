@@ -1,3 +1,5 @@
+export { handleActions as createReducer } from 'redux-actions';
+
 export const addIfNotExist = (receiver, addition) => {
   if (!Array.isArray(receiver)) {
     throw new TypeError('Expected 1st argument to be array');

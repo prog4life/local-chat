@@ -23,8 +23,8 @@ class PublicWall extends React.Component {
   }
 
   static defaultProps = {
-    uid: null,
     posts: null,
+    uid: null,
     wallId: null,
   };
 
@@ -56,6 +56,7 @@ class PublicWall extends React.Component {
 
     console.log('PublicWall UPDATE, prevProps: ', prevProps, ' this.props: ', this.props);
 
+    // TODO: check for error presence to prevent retry loop
     signInIfNeed();
     this.joinWallConditionally(wallId);
   }
@@ -86,9 +87,13 @@ class PublicWall extends React.Component {
     console.log(`Deleting of post ${id} is already requested`);
   }
 
-  joinWallConditionally(wallId) {
+  joinWallConditionally(wallId) { // TODO: rename to maybe...
     const { isSubscribed, joinWall, isSubscribing, uid } = this.props;
 
+    // TODO: check for error presence to prevent retry loop
+    // if (joinWallError) {
+    //   return;
+    // }
     if (uid && wallId && !isSubscribed && !isSubscribing) {
       joinWall(uid, wallId); // TODO: add backoff
     }
@@ -101,7 +106,9 @@ class PublicWall extends React.Component {
   )
 
   render() {
-    const { posts, uid, isSubscribing, isSubscribed, isFetchingPosts } = this.props;
+    const {
+      posts, uid, isSubscribing, isSubscribed, isFetchingPosts,
+    } = this.props;
     let listContent = null;
     let listItemContent = null;
 

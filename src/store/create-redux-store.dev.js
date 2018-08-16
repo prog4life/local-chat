@@ -5,7 +5,7 @@ import immutabilityWatcher from 'redux-immutable-state-invariant';
 import freeze from 'redux-freeze';
 import { createLogger } from 'redux-logger';
 // import logger from 'redux-logger'; // to get logger mw with default options
-import appReducer from 'reducers';
+import reducer from 'state/reducer';
 
 import { authSaga } from 'state/auth';
 import { wallSaga } from 'state/wall';
@@ -23,7 +23,7 @@ const logger = createLogger({
 
 const watcher = immutabilityWatcher();
 
-const middleware = process.env.NODE_ENV === 'development' // TEMP: doublecheck
+const middlewares = process.env.NODE_ENV === 'development' // TEMP: doublecheck
   ? [watcher, freeze, sagaMiddleware, thunk, logger]
   : [sagaMiddleware, thunk];
 
@@ -33,9 +33,9 @@ const createReduxStore = (preloadedState = {}) => {
     || compose;
 
   const store = createStore(
-    appReducer,
+    reducer,
     preloadedState,
-    composeEnhancers(applyMiddleware(...middleware)),
+    composeEnhancers(applyMiddleware(...middlewares)),
   );
 
   sagaMiddleware.run(authSaga);

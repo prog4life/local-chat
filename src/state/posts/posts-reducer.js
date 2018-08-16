@@ -1,13 +1,14 @@
 import { combineReducers } from 'redux';
+import { combineActions } from 'redux-actions';
 
 import * as aT from 'state/action-types';
 
-import { addIfNotExist, makeUnion, setErrorValue } from './reducerUtils';
+import { createReducer, addIfNotExist, makeUnion, setErrorValue } from 'state/utils';
 
 const postsById = (state = null, action) => {
   switch (action.type) {
     case aT.FETCH_POSTS:
-      return state ? state : {};
+      return state === null ? {} : state;
     case aT.FETCH_POSTS_SUCCESS:
       return { ...state, ...action.payload.byId };
     case aT.ADD_POST:
@@ -38,18 +39,32 @@ const postsById = (state = null, action) => {
   }
 };
 
+const undo = createReducer({
+  [aT.DELETE_POST]: (state, { payload }) => ({
+    ...state,
+    deleted: addIfNotExist(state.deleted, payload.id),
+  }),
+  [combineActions(
+    aT.DELETE_POST_SUCCESS,
+    aT.DELETE_POST_FAIL,
+  )]: (state, { payload }) => ({
+    ...state,
+    deleted: state.deleted.filter(id => id !== payload.id),
+  }),
+}, { deleted: [], updated: {} });
+
 // when post removal starts its id is landed here until deletion success or fail
-const toBeRemoved = (state = [], action) => {
-  switch (action.type) {
-    case aT.DELETE_POST:
-      return addIfNotExist(state, action.payload.id);
-    case aT.DELETE_POST_SUCCESS:
-    case aT.DELETE_POST_FAIL:
-      return state.filter(id => id !== action.payload.id);
-    default:
-      return state;
-  }
-};
+// const toBeRemoved = (state = [], action) => {
+//   switch (action.type) {
+//     case aT.DELETE_POST:
+//       return addIfNotExist(state, action.payload.id);
+//     case aT.DELETE_POST_SUCCESS:
+//     case aT.DELETE_POST_FAIL:
+//       return state.filter(id => id !== action.payload.id);
+//     default:
+//       return state;
+//   }
+// };
 
 const isFetching = (state = false, action) => {
   switch (action.type) {
@@ -65,8 +80,10 @@ const isFetching = (state = false, action) => {
 
 const visiblePosts = (state = null, action) => {
   switch (action.type) {
+    case 'TEST_TYPE': //                                       TEMP:
+      return state === null ? [].concat(action.payload) : state.concat(action.payload);
     case aT.FETCH_POSTS:
-      return state ? state : [];
+      return state === null ? [] : state;
     case aT.FETCH_POSTS_SUCCESS:
       return makeUnion(state, action.payload.ids);
     default:
@@ -99,7 +116,8 @@ const errors = (state = initialErrorsState, action) => {
 
 export default combineReducers({
   postsById,
-  toBeRemoved,
+  undo,
+  // toBeRemoved,
   isFetching,
   visiblePosts,
   errors,
