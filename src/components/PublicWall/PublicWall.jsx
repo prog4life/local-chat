@@ -54,7 +54,7 @@ class PublicWall extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { wallId, signInIfNeed } = this.props;
 
-    console.log('PublicWall UPDATE, prevProps: ', prevProps, ' this.props: ', this.props);
+    console.log('PublicWall UPDATE, prevProps and this.props: ', prevProps, this.props);
 
     // TODO: check for error presence to prevent retry loop
     signInIfNeed();
@@ -125,13 +125,13 @@ class PublicWall extends React.Component {
         listItemContent = 'Loading posts...';
         break;
       case (posts && posts.length === 0):
-        listItemContent = 'No posts to show. Try to change filter parameters';
+        listItemContent = 'No posts to show. Try to change filter';
         break;
       case (!posts):
         listItemContent = 'Posts are not loaded yet';
         break;
       default:
-        listItemContent = 'Nothing to show. Try to refresh wall';
+        listItemContent = 'Nothing to show. Try to refresh wall or page';
     }
 
     if (posts && posts.length > 0) {

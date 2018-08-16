@@ -39,6 +39,7 @@ const postsById = (state = null, action) => {
   }
 };
 
+// to store posts data temporarily until operation result (success/fail)
 const undo = createReducer({
   [aT.DELETE_POST]: (state, { payload }) => ({
     ...state,
@@ -80,8 +81,6 @@ const isFetching = (state = false, action) => {
 
 const visiblePosts = (state = null, action) => {
   switch (action.type) {
-    case 'TEST_TYPE': //                                       TEMP:
-      return state === null ? [].concat(action.payload) : state.concat(action.payload);
     case aT.FETCH_POSTS:
       return state === null ? [] : state;
     case aT.FETCH_POSTS_SUCCESS:

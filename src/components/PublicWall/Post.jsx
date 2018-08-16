@@ -26,6 +26,7 @@ const Post = ({
         role="button"
         tabIndex="0"
         style={{ cursor: 'pointer', margin: '0 5px', color: 'lightred' }}
+        onKeyPress={() => {}}
       >
         {'Delete'}
       </span>

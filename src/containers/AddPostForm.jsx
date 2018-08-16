@@ -9,6 +9,11 @@ import { addPost } from 'state/posts';
 import { getUid } from 'state/selectors';
 
 class AddPostForm extends React.Component {
+  static propTypes = {
+    createPost: pt.func.isRequired,
+    // uid: pt.string.isRequired,
+  }
+
   handleSubmit = (event) => {
     event.preventDefault();
     const { createPost, uid } = this.props;
@@ -47,4 +52,6 @@ const mapStateToProps = state => ({
   uid: getUid(state),
 });
 
-export default connect(mapStateToProps, { createPost: addPost })(AddPostForm);
+const toDispatch = { createPost: addPost };
+
+export default connect(mapStateToProps, toDispatch)(AddPostForm);
