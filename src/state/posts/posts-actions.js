@@ -12,3 +12,9 @@ export const deletePost = postId => ({
   type: aT.DELETE_POST,
   payload: { id: postId },
 });
+
+// export const maybeDeletePost = postId => (dispatch, getState) => {
+//   const state = getState();
+//
+//
+// };

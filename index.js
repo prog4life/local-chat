@@ -71,6 +71,15 @@ app.use((error, req, res, next) => {
   res.status(error.statusCode || 500).end(error.message || 'Error w/o message');
 });
 
+// TODO: use something from:
+// app.listen(port, function(error) {
+//   if (error) {
+//     console.error(error)
+//   } else {
+//     console.info("==> 🌎  Listening on port %s. Open up http://localhost:%s/ in your browser.", port, port)
+//   }
+// })
+
 server.listen(port);
 
 server.on('listening', () => {

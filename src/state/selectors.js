@@ -14,7 +14,8 @@ export const isSubscribingToWall = state => state.wall.isSubscribing;
 
 // posts state slice
 export const getPostsById = state => state.posts.postsById;
-export const getDeletedPosts = state => state.posts.undo.deleted;
+export const getDeletedPosts = state => state.posts.changes.delete;
+export const getAddedPosts = state => state.posts.changes.add;
 export const getPosts = createSelector(
   [getPostsById, getDeletedPosts],
   (postsById, deletedPosts) => (

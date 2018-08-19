@@ -10,7 +10,7 @@ const postsRef = wallId => (
 const postDocRef = (wallId, postId) => (
   wallRef(wallId).doc(`posts/${postId}`)
 );
- 
+
 const deleteField = () => firebase.firestore.FieldValue.delete();
 // TODO: rename to request/retrieve/receive/gain...
 const obtainWallIdByCity = (city) => {
@@ -66,12 +66,12 @@ const getPosts = (filter) => {
 
 const createPost = (wallId, newPost) => {
   const postsColRef = postsRef(wallId);
-  delete newPost.id;
   const post = {
     ...newPost,
     createdAt: firebase.firestore.Timestamp.fromMillis(newPost.createdAt),
   };
-  
+  delete post.id; // remove temporary id, generated at client
+
   // if need to use document rigth after creation:
   // Add a new document with a generated id.
   //    const newWallRef = db.collection('walls').doc();
@@ -113,7 +113,7 @@ const subscribeToWall = ({ clientUid, wallId }) => {
 //   db.runTransaction((transaction) => {
 //     // This code may get re-run multiple times if there are conflicts.
 //     return transaction.
-    
+
 //   });
 // };
 
