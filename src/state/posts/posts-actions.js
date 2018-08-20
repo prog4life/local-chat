@@ -8,10 +8,9 @@ export const addPost = postData => ({
   payload: { id: uuidv4(), ...postData },
 });
 
-export const deletePost = (postId, wallId = null, hasTempId = null) => ({
+export const deletePost = (postId, wallId = null) => ({
   type: aT.DELETE_POST,
-  payload: { id: postId },
-  meta: { wallId, hasTempId },
+  payload: { id: postId, wallId },
 });
 
 // export const maybeDeletePost = postId => (dispatch, getState) => {

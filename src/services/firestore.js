@@ -91,10 +91,7 @@ const createPost = (wallId, newPost) => {
 const deletePost = (wallId, postId) => {
   const postRef = makePostDocRef(wallId, postId);
 
-  return postRef.delete().then(
-    result => ({ result }),
-    error => ({ error }),
-  );
+  return postRef.delete().catch(error => ({ error }));
 };
 
 const updatePost = (message) => {

@@ -22,8 +22,11 @@ export const makeUnion = (initial, additional) => {
 };
 
 export const setErrorValue = (state, key, error) => {
+  if (error && !(error instanceof Error)) {
+    throw new TypeError('Passed error must be instance of Error');
+  }
   const value = error
-    ? { code: error.code || null, message: error.message || null }
+    ? { code: error.code || null, message: error.message || 'No error message' }
     : null;
 
   if (typeof key !== 'string') {

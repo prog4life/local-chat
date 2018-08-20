@@ -18,10 +18,9 @@ const postsById = (state = null, { type, payload, meta }) => {
         [payload.id]: { ...payload, hasTempId: true },
       };
     case aT.ADD_POST_SUCCESS: {
-      // const isRemovalRequested = state[meta.tempId].isDeleted || false;
       const nextState = { ...state };
       delete nextState[meta.tempId]; // tempId that was generated at client
-      nextState[payload.id] = { ...payload /* , isDeleted: isRemovalRequested */ };
+      nextState[payload.id] = { ...payload };
       return nextState;
     }
     case aT.ADD_POST_FAIL: {
@@ -39,11 +38,14 @@ const postsById = (state = null, { type, payload, meta }) => {
       delete nextState[payload.id];
       return nextState;
     }
-    case aT.DELETE_POST_FAIL:
+    case aT.DELETE_POST_FAIL: {
+      // remove isDeleted flag from post
+      const { isDeleted, ...postData } = state[meta.id];
       return {
         ...state,
-        [payload.id]: { ...state[payload.id], isDeleted: false },
+        [meta.id]: { ...postData },
       };
+    }
     default:
       return state;
   }
@@ -69,7 +71,7 @@ const listedIds = (state = null, { type, payload, meta }) => {
     case aT.DELETE_POST_SUCCESS:
       return state.filter(id => id !== payload.id);
     // case aT.DELETE_POST_FAIL:
-    //   return [...state, payload.id];
+    //   return [...state, meta.id];
     default:
       return state;
   }
@@ -88,24 +90,24 @@ const isFetching = (state = false, action) => {
 };
 
 const initialErrorsState = {
-  fetching: null, add: null, delete: null, update: null,
+  fetching: null, add: null, remove: null, update: null,
 };
 
-const errors = (state = initialErrorsState, action) => {
-  switch (action.type) {
+const errors = (state = initialErrorsState, { type, payload }) => {
+  switch (type) {
     case aT.FETCH_POSTS:
       return setErrorValue(state, 'fetching');
     case aT.FETCH_POSTS_FAIL:
-      return setErrorValue(state, 'fetching', action.error);
+      return setErrorValue(state, 'fetching', payload);
     case aT.ADD_POST:
       return setErrorValue(state, 'add');
     // NOTE: show error only if post was not deleted by user (add display flag?)
     case aT.ADD_POST_FAIL:
-      return setErrorValue(state, 'add', action.error);
+      return setErrorValue(state, 'add', payload);
     case aT.DELETE_POST:
-      return setErrorValue(state, 'delete');
+      return setErrorValue(state, 'remove');
     case aT.DELETE_POST_FAIL:
-      return setErrorValue(state, 'delete', action.error);
+      return setErrorValue(state, 'remove', payload);
     default:
       return state;
   }
@@ -129,39 +131,6 @@ export default function postsReducer(state = {}, action) {
 //   errors,
 // });
 
-// const postsById = (state = null, action) => {
-//   switch (action.type) {
-//     case aT.FETCH_POSTS:
-//       return state === null ? {} : state;
-//     case aT.FETCH_POSTS_SUCCESS:
-//       return { ...state, ...action.payload.byId };
-//     case aT.ADD_POST:
-//       // this id will be temporary
-//       return { ...state, [action.payload.id]: { ...action.payload } };
-//     case aT.ADD_POST_SUCCESS: {
-//       const nextState = { ...state };
-//       nextState[action.payload.id] = {
-//         // retrieve data from post object that is stored under temporary id
-//         ...nextState[action.meta.tempId], // temp id will be rewrited by ->
-//         ...action.payload, // contains permanent id assigned by firestore
-//       };
-//       delete nextState[action.meta.tempId];
-//       return nextState;
-//     }
-//     case aT.ADD_POST_FAIL: {
-//       const nextState = { ...state };
-//       delete nextState[action.meta.tempId];
-//       return nextState;
-//     }
-//     case aT.DELETE_POST_SUCCESS: {
-//       const nextState = { ...state };
-//       delete nextState[action.payload.id];
-//       return nextState;
-//     }
-//     default:
-//       return state;
-//   }
-// };
 
 // to store posts data temporarily until operation result (success/fail)
 // const changes = createReducer({
@@ -179,26 +148,15 @@ export default function postsReducer(state = {}, action) {
 //   [aT.DELETE_POST]: (state, { payload }) => ({
 //     ...state,
 //     add: state.add.filter(id => id !== payload.id),
-//     delete: addIfNotExist(state.delete, payload.id),
+//     remove: addIfNotExist(state.remove, payload.id),
 //   }),
 //   [combineActions(
 //     aT.DELETE_POST_SUCCESS,
 //     aT.DELETE_POST_FAIL,
 //   )]: (state, { payload }) => ({
 //     ...state,
-//     delete: state.delete.filter(id => id !== payload.id),
+//     remove: state.remove.filter(id => id !== payload.id),
 //   }),
-// }, { add: [], delete: [], edit: {} });
+// }, { add: [], remove: [], edit: {} });
 
 // when post removal starts its id is landed here until deletion success or fail
-// const toBeRemoved = (state = [], action) => {
-//   switch (action.type) {
-//     case aT.DELETE_POST:
-//       return addIfNotExist(state, action.payload.id);
-//     case aT.DELETE_POST_SUCCESS:
-//     case aT.DELETE_POST_FAIL:
-//       return state.filter(id => id !== action.payload.id);
-//     default:
-//       return state;
-//   }
-// };

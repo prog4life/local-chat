@@ -4,7 +4,7 @@ import {
 import { delay } from 'redux-saga';
 import * as aT from 'state/action-types';
 import * as firestore from 'services/firestore';
-import { getWallId, isPostRemovalRequested } from 'state/selectors';
+import { getWallId } from 'state/selectors';
 
 export function* fetchPostsFlow(action) {
   try {
@@ -17,35 +17,28 @@ export function* fetchPostsFlow(action) {
   }
 }
 
-export function* deletePostById({ payload: { id }, meta }) {
-  let { wallId /* , hasTempId */ } = meta;
+export function* deletePostById({ payload }) {
+  const { id } = payload;
+  let { wallId } = payload;
 
-  if (!wallId /* || typeof hasTempId !== 'boolean' */) {
-    const state = yield select();
+  yield call(delay, 2000); // TEMP:
 
-    wallId = wallId || getWallId(state);
-    // hasTempId = isPostIdTemporary(state, id);
+  if (!wallId) {
+    wallId = yield select(getWallId);
   }
 
-  // if (hasTempId) {
-  //   yield put({ type: 'DELETE_POST_DELAY', payload: { id, wallId } });
-  //   return;
-  // }
-  // send deletion request
-  const { result, error } = yield call(firestore.deletePost, wallId, id);
-
-  if (error) {
+  try {
+    yield call(firestore.deletePost, wallId, id);
+    yield put({
+      type: aT.DELETE_POST_SUCCESS,
+      payload: { id },
+    });
+  } catch (error) {
     yield put({
       type: aT.DELETE_POST_FAIL,
       payload: error,
       error: true,
       meta: { id },
-    });
-  } else {
-    yield put({
-      type: aT.DELETE_POST_SUCCESS,
-      payload: { id },
-      meta: { result }, // TEMP:
     });
   }
 }
@@ -66,26 +59,13 @@ export function* createNewPost({ payload }) {
       error: true,
       meta: { tempId },
     });
-    // TODO: if isRemovalRequested === true -> dispatch DELETE_POST_NEEDLESS
-    return;
+  } else {
+    yield put({
+      type: aT.ADD_POST_SUCCESS,
+      payload: { ...payload, id }, // rewrite id by one assigned at firestore
+      meta: { tempId },
+    });
   }
-  yield put({
-    type: aT.ADD_POST_SUCCESS,
-    payload: { ...payload, id }, // rewrite id by one assigned at firestore
-    meta: { tempId },
-  });
-
-  // check if post with id has deletion flag and invoke
-  // deletePostById saga if true
-  // const isRemovalRequested = yield select(isPostRemovalRequested, id);
-
-  // if (isRemovalRequested) {
-  //   yield call(deletePostById, {
-  //     // type: aT.DELETE_POST,
-  //     payload: { id },
-  //     meta: { wallId, hasTempId: false },
-  //   });
-  // }
 }
 
 // export function* createPostFlow({ message }) {

@@ -5,6 +5,8 @@ import 'firebase/firestore'; // ???
 
 import ReduxSagaFirebase from 'redux-saga-firebase'
 
+// TODO: upload keys and params from env vars                                    !!!
+
 // Initialize Firebase
 const config = {
   apiKey: 'AIzaSyAT9-GhTwEB2VX6XOsXTiXeZs_5a7Shkqc',
