@@ -18,9 +18,11 @@ const postsById = (state = null, { type, payload, meta }) => {
         [payload.id]: { ...payload, isCreating: true },
       };
     case aT.ADD_POST_SUCCESS: {
-      const nextState = { ...state };
+      const isRemovalRequested = state[meta.tempId].isDeleting;
+      const nextState = isRemovalRequested
+        ? { ...state }
+        : { ...state, [payload.id]: { ...payload } };
       delete nextState[meta.tempId]; // tempId that was generated at client
-      nextState[payload.id] = { ...payload };
       return nextState;
     }
     case aT.ADD_POST_FAIL: {
@@ -39,7 +41,10 @@ const postsById = (state = null, { type, payload, meta }) => {
       return nextState;
     }
     case aT.DELETE_POST_FAIL:
-      return {
+      // if it had temp id it could be removed in ADD_POST_SUCCESS / FAIL cases
+      // ADD_POST (with temp id) -> DELETE_POST (mark post with temp id) ->
+      // ADD_POST_SUCCESS / FAIL (remove one with temp id) -> DELETE_POST_FAIL
+      return !state[payload.id] ? state : {
         ...state,
         [payload.id]: { ...state[payload.id], isDeleting: false },
       };
@@ -91,6 +96,7 @@ const errors = (state = initialErrorsState, action) => {
       return setErrorValue(state, 'fetching', action.error);
     case aT.ADD_POST:
       return setErrorValue(state, 'add');
+    // NOTE: show error only if post was not deleted by user (add display flag?)
     case aT.ADD_POST_FAIL:
       return setErrorValue(state, 'add', action.error);
     case aT.DELETE_POST:
