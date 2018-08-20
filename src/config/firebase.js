@@ -3,6 +3,8 @@ import 'firebase/auth';
 // Required for side-effects
 import 'firebase/firestore'; // ???
 
+import ReduxSagaFirebase from 'redux-saga-firebase'
+
 // Initialize Firebase
 const config = {
   apiKey: 'AIzaSyAT9-GhTwEB2VX6XOsXTiXeZs_5a7Shkqc',
@@ -13,12 +15,15 @@ const config = {
   messagingSenderId: '798724513812',
 };
 
-firebase.initializeApp(config);
+const firebaseApp = firebase.initializeApp(config);
 
+// TODO: Replace to firestore ?
 // Initialize Cloud Firestore through Firebase
 const db = firebase.firestore();
 const configuration = { timestampsInSnapshots: true };
 db.settings(configuration);
+
+export const reduxSagaFirebase = new ReduxSagaFirebase(firebaseApp); // rsf
 
 /*
 // Old:

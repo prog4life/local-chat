@@ -24,13 +24,13 @@ export function* signInWithEmailSaga({ payload }) {
   const state = yield select();
   const uid = getUid(state);
   const isAnonymous = isAnonymousSelector(state);
-  
+
   if (uid && isAnonymous === false) { // signed in with email already
     console.warn('SIGNED IN with email already');
     return;
   }
   // TEMP: END
-  
+
   // TODO:
   // if (isAuthenticating) {
   //   return;
@@ -110,7 +110,7 @@ export default function* authSaga() {
 //   // null - signed out, true - signed in anonymously, false - signed in
 //   const isAnonymous = isAnonymousSelector(state);
 //   console.log('Sign In UID: ', uid, ', is Anonynous: ', isAnonymous);
-  
+
 //   // is 2nd necessary (e.g. to check if auth requested already) ???
 //   // during auth request "isAnonymous" will be true/false, but not null
 //   // better to replace it by isAuthenticating

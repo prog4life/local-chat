@@ -14,17 +14,15 @@ export const isSubscribingToWall = state => state.wall.isSubscribing;
 
 // posts state slice
 export const getPostsById = state => state.posts.postsById;
-export const getDeletedPosts = state => state.posts.changes.delete;
-export const getAddedPosts = state => state.posts.changes.add;
+export const getPostById = (state, id) => getPostsById(state)[id];
+export const getPostIds = state => state.posts.listedIds;
 export const getPosts = createSelector(
-  [getPostsById, getDeletedPosts],
-  (postsById, deletedPosts) => (
-    postsById
-    // const ids = postsById ? Object.keys(postsById) : [];
-      // was ids.map(id => postsById[id])
-      ? Object.values(postsById).filter(post => (
-        !deletedPosts.includes(post.id)
-      ))
+  [getPostsById, getPostIds],
+  (postsById, ids) => (
+    postsById && ids
+      // const ids = postsById ? Object.keys(postsById) : [];
+      // was !deletedPosts.includes(post.id)
+      ? ids.map(id => postsById[id]).filter(post => !post.isDeleted)
       : null
   ),
 );
@@ -42,8 +40,9 @@ export const getPosts = createSelector(
 //     : null;
 // };
 export const isFetchingPosts = state => state.posts.isFetching;
+export const isPostIdTemporary = (state, id) => getPostById(state, id).hasTempId;
 export const isPostRemovalRequested = (state, id) => (
-  getDeletedPosts(state).includes(id)
+  getPostById(state, id).isDeleted
 );
 
 // chats state slice

@@ -6,8 +6,6 @@ import Post from './Post';
 
 class PublicWall extends React.Component {
   static propTypes = {
-    // checkClientId: PropTypes.func.isRequired,
-    deletedPosts: PropTypes.arrayOf(PropTypes.string).isRequired,
     deletePost: PropTypes.func.isRequired,
     fetchPosts: PropTypes.func.isRequired,
     fetchWallId: PropTypes.func.isRequired,
@@ -17,7 +15,7 @@ class PublicWall extends React.Component {
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object),
-    signInIfNeed: PropTypes.func.isRequired,
+    signInIfNeeded: PropTypes.func.isRequired,
     uid: PropTypes.string,
     wallId: PropTypes.string,
   }
@@ -33,10 +31,10 @@ class PublicWall extends React.Component {
 
   componentDidMount() {
     const {
-      wallId, posts, signInIfNeed, fetchWallId, fetchPosts, isFetchingPosts,
+      wallId, posts, signInIfNeeded, fetchWallId, fetchPosts, isFetchingPosts,
     } = this.props;
 
-    signInIfNeed();
+    signInIfNeeded();
     // TODO: || prevCity !== currentCity
     // TRY to use for this getSnapshotBeforeUpdate
     if (!wallId) {
@@ -52,12 +50,12 @@ class PublicWall extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { wallId, signInIfNeed } = this.props;
+    const { wallId, signInIfNeeded } = this.props;
 
     console.log('PublicWall UPDATE, prevProps and this.props: ', prevProps, this.props);
 
     // TODO: check for error presence to prevent retry loop
-    signInIfNeed();
+    signInIfNeeded();
     this.joinWallConditionally(wallId);
   }
 
@@ -68,23 +66,17 @@ class PublicWall extends React.Component {
   }
 
   // signInIfNotLoggedIn() {
-  //   const { uid, signInIfNeed } = this.props;
+  //   const { uid, signInIfNeeded } = this.props;
 
   //   if (!uid) {
-  //     signInIfNeed(); // TODO: add backoff
+  //     signInIfNeeded(); // TODO: add backoff
   //   }
   // }
 
-  handleDeletePost = id => () => {
-    const { deletePost, uid, posts, deletedPosts } = this.props;
+  handleDeletePost = postId => () => {
+    const { wallId, deletePost } = this.props;
 
-    // TODO: add || uid === posts[id].author ?
-    // removal of post with such id is already requested, but not finished
-    if (!deletedPosts.includes(id)) {
-      deletePost(id);
-    }
-    // TEMP:
-    console.log(`Deleting of post ${id} is already requested`);
+    deletePost(postId, wallId);
   }
 
   joinWallConditionally(wallId) { // TODO: rename to maybe...

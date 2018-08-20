@@ -6,7 +6,7 @@ import firebaseClient from '../../services/firebase-client';
 export const signIn = () => ({ type: aT.SIGN_IN });
 export const signOut = () => ({ type: aT.SIGN_OUT });
 
-export const signInIfNeed = () => (dispatch, getState) => {
+export const signInIfNeeded = () => (dispatch, getState) => {
   // TODO: add backoff                                                           !!!
   const state = getState();
   const uid = getUid(state);

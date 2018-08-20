@@ -1,21 +1,22 @@
 import firebase from 'firebase/app';
 import db from '../config/firebase';
 
-const wallsRef = db.collection('walls');
-// const wallRef = wallId => wallsRef.doc(wallId);
-const wallRef = wallId => db.doc(`walls/${wallId}`);
-const postsRef = wallId => (
-  wallRef(wallId).collection('posts')
+const wallsColRef = db.collection('walls');
+// const makeWallRef = wallId => wallsColRef.doc(wallId);
+const makeWallRef = wallId => db.doc(`walls/${wallId}`);
+const makePostsColRef = wallId => (
+  makeWallRef(wallId).collection('posts')
 );
-const postDocRef = (wallId, postId) => (
-  wallRef(wallId).doc(`posts/${postId}`)
-);
+const makePostDocRef = (wallId, postId) => {
+  const wallRef = makeWallRef(wallId);
+  return wallRef.collection('posts').doc(postId);
+};
 
 const deleteField = () => firebase.firestore.FieldValue.delete();
 // TODO: rename to request/retrieve/receive/gain...
 const obtainWallIdByCity = (city) => {
   // OR place, locality, location
-  const wallsQuery = wallsRef.where('city', '==', city);
+  const wallsQuery = wallsColRef.where('city', '==', city);
   const walls = [];
 
   return wallsQuery.get().then((querySnapshot) => {
@@ -38,7 +39,7 @@ const obtainWallIdByCity = (city) => {
 };
 // TODO: rename to request/retrieve...
 const getPosts = (filter) => {
-  const postsColRef = postsRef(filter.wallId);
+  const postsColRef = makePostsColRef(filter.wallId);
 
   // NOTE: Querying across subcollections is not currently supported in
   // Cloud Firestore. If you need to query data across collections, use
@@ -65,7 +66,7 @@ const getPosts = (filter) => {
 };
 
 const createPost = (wallId, newPost) => {
-  const postsColRef = postsRef(wallId);
+  const postsColRef = makePostsColRef(wallId);
   const post = {
     ...newPost,
     createdAt: firebase.firestore.Timestamp.fromMillis(newPost.createdAt),
@@ -88,9 +89,12 @@ const createPost = (wallId, newPost) => {
 };
 
 const deletePost = (wallId, postId) => {
-  const postRef = postDocRef(wallId, postId);
+  const postRef = makePostDocRef(wallId, postId);
 
-  postRef.delete();
+  return postRef.delete().then(
+    result => ({ result }),
+    error => ({ error }),
+  );
 };
 
 const updatePost = (message) => {
@@ -103,7 +107,7 @@ const updatePost = (message) => {
 // TODO: try to get wall with where() and add subscribe to it within single query
 
 const subscribeToWall = ({ clientUid, wallId }) => {
-  return wallRef(wallId).set(
+  return makeWallRef(wallId).set(
     { subscribers: { [clientUid]: true } },
     { merge: true },
   );
@@ -118,7 +122,7 @@ const subscribeToWall = ({ clientUid, wallId }) => {
 // };
 
 const unsubscribeFromWall = (uid) => {
-  return wallRef('VmQhK1Bg5HFKnLMr6hZw').set(
+  return makeWallRef('VmQhK1Bg5HFKnLMr6hZw').set(
     { subscribers: { [uid]: true } },
     { merge: true },
   ).then(
@@ -128,15 +132,12 @@ const unsubscribeFromWall = (uid) => {
 };
 
 export {
-  wallsRef, wallRef, postsRef, getPosts, createPost, deletePost, updatePost,
+  getPosts, createPost, deletePost, updatePost,
   obtainWallIdByCity, subscribeToWall, unsubscribeFromWall, db as default,
 };
 
 // TODO: export each function separately +
 // export default {
-//   wallsRef,
-//   wallRef,
-//   postsRef,
 //   getPosts,
 //   createPost,
 //   updatePost,

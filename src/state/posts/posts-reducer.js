@@ -15,14 +15,13 @@ const postsById = (state = null, { type, payload, meta }) => {
       return {
         ...state,
         // next id is generated at client and will be temporary
-        [payload.id]: { ...payload, isCreating: true },
+        [payload.id]: { ...payload, hasTempId: true },
       };
     case aT.ADD_POST_SUCCESS: {
-      const isRemovalRequested = state[meta.tempId].isDeleting;
-      const nextState = isRemovalRequested
-        ? { ...state }
-        : { ...state, [payload.id]: { ...payload } };
+      // const isRemovalRequested = state[meta.tempId].isDeleted || false;
+      const nextState = { ...state };
       delete nextState[meta.tempId]; // tempId that was generated at client
+      nextState[payload.id] = { ...payload /* , isDeleted: isRemovalRequested */ };
       return nextState;
     }
     case aT.ADD_POST_FAIL: {
@@ -33,7 +32,7 @@ const postsById = (state = null, { type, payload, meta }) => {
     case aT.DELETE_POST:
       return {
         ...state,
-        [payload.id]: { ...state[payload.id], isDeleting: true },
+        [payload.id]: { ...state[payload.id], isDeleted: true },
       };
     case aT.DELETE_POST_SUCCESS: {
       const nextState = { ...state };
@@ -41,21 +40,19 @@ const postsById = (state = null, { type, payload, meta }) => {
       return nextState;
     }
     case aT.DELETE_POST_FAIL:
-      // if it had temp id it could be removed in ADD_POST_SUCCESS / FAIL cases
-      // ADD_POST (with temp id) -> DELETE_POST (mark post with temp id) ->
-      // ADD_POST_SUCCESS / FAIL (remove one with temp id) -> DELETE_POST_FAIL
-      return !state[payload.id] ? state : {
+      return {
         ...state,
-        [payload.id]: { ...state[payload.id], isDeleting: false },
+        [payload.id]: { ...state[payload.id], isDeleted: false },
       };
     default:
       return state;
   }
 };
 
-// TODO: do not show Edit button for post until post creation have succeeded
+// TODO: do not show Edit / Delete buttons for post until post creation
+// have succeeded
 
-const listedIds = (state = null, { type, payload }) => {
+const listedIds = (state = null, { type, payload, meta }) => {
   switch (type) {
     case aT.FETCH_POSTS:
       return state === null ? [] : state;
@@ -63,10 +60,16 @@ const listedIds = (state = null, { type, payload }) => {
       return makeUnion(state, payload.ids);
     case aT.ADD_POST:
       return addIfNotExist(state, payload.id);
+    case aT.ADD_POST_SUCCESS:
+      return state.filter(id => id !== meta.tempId).concat(payload.id);
     case aT.ADD_POST_FAIL:
-      return state.filter(id => id !== payload.id);
+      return state.filter(id => id !== meta.tempId);
+    // case aT.DELETE_POST:
+    //   return state.filter(id => id !== payload.id);
     case aT.DELETE_POST_SUCCESS:
       return state.filter(id => id !== payload.id);
+    // case aT.DELETE_POST_FAIL:
+    //   return [...state, payload.id];
     default:
       return state;
   }
