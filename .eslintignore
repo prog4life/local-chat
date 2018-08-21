@@ -1,2 +1,8 @@
+node_modules/
+build/
+dist/
+TEMP/
+
 **/bundle.js
-**/bundle.js.map
+public/**/*.js
+**/*.js.map
