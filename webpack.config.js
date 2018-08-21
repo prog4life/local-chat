@@ -14,14 +14,14 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 // const CompressionPlugin = require('compression-webpack-plugin');
 // const VisualizerPlugin = require('webpack-visualizer-plugin');
 const autoprefixer = require('autoprefixer');
-const cssnano = require('cssnano');
+// const cssnano = require('cssnano');
 // const scssSyntax = require('postcss-scss');
 
 process.traceDeprecation = true; // or run process with --trace-deprecation flag
 
 const env = process.env.NODE_ENV || 'development';
 const isProduction = env === 'production';
-const devMode = env !== 'production';
+// const devMode = env !== 'production';
 
 console.log('env: ', env);
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
@@ -39,11 +39,12 @@ module.exports = {
     ],
   },
   output: {
-    filename: isProduction ? 'js/[name].[chunkhash].js' : '[name].js',
-    chunkFilename: isProduction ? 'js/[name].[chunkhash].js' : '[id].js',
+    filename: isProduction ? 'js/[name].[chunkhash:4].js' : '[name].[id].js',
+    chunkFilename: isProduction ? 'js/[name].[chunkhash:4].js' : '[id].js',
     path: path.resolve(__dirname, 'public'),
     publicPath: '/',
   },
+  // ========================== OPTIMIZATION ==================================
   optimization: {
     minimizer: [ // setting this overrides webpack 4 defaults
       new UglifyJSPlugin({
@@ -54,8 +55,9 @@ module.exports = {
       // use this or 'cssnano' or 'optimize-cssnano-plugin'
       new OptimizeCSSAssetsPlugin({}), // source maps are not created
     ],
+    // ------------------------ SPLIT CHUNKS ----------------------------------
     splitChunks: {
-      chunks: 'all',
+      chunks: 'all', // to work for not only async chunks too
       // name: false, // switch off name generation
     },
     // splitChunks: {
@@ -69,12 +71,13 @@ module.exports = {
     //   }
     // }
   },
+  // =============================== PLUGINS ==================================
   plugins: [
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: isProduction ? 'css/styles.[contenthash].css' : '[name].css',
-      chunkFilename: isProduction ? 'css/[name].[contenthash].css' : '[id].css',
+      filename: isProduction ? 'css/styles.[contenthash:4].css' : '[name].css',
+      chunkFilename: isProduction ? 'css/[name].[contenthash:4].css' : '[id].css',
     }),
     // alternative to 'optimize-css-assets-webpack-plugin' or 'cssnano'
     // new OptimizeCSSNanoPlugin({ sourceMap: 'nextSourceMap' }),
@@ -97,8 +100,6 @@ module.exports = {
       template: './src/assets/template.html',
       appMountId: 'app',
       mobile: true,
-      // filename: 'assets/custom.html',
-      // hash: true, // usefull for cache busting
     }),
     // new CompressionPlugin({
     //   deleteOriginalAssets: true,
@@ -106,13 +107,22 @@ module.exports = {
     // }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
+      // reportFilename: '../temp', // relative to output.path
       openAnalyzer: false,
+    }),
+    new CircularDependencyPlugin({
+      exclude: /temp|node_modules/i, // exclude detection of files
+      failOnError: true, // add errors to webpack instead of warnings
+      // allow import cycles that include an asyncronous import, e.g. via
+      allowAsyncCycles: false, // import(/* webpackMode: "weak" */ './file.js')
+      cwd: process.cwd(), // for displaying module paths
     }),
     new DuplPkgCheckrPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     // new VisualizerPlugin(),
     ...isProduction ? [] : [new webpack.HotModuleReplacementPlugin()],
   ],
+  // =============================== RESOLVE ==================================
   resolve: {
     alias: {
       components: path.resolve(__dirname, 'src/components'),
@@ -131,25 +141,32 @@ module.exports = {
     ],
     extensions: ['.js', '.json', '.jsx', '*'],
   },
+  // ============================ MODULE (lOADERS) ============================
   module: {
     rules: [
+      // -------------------- JS/JSX BABEL-LOADER -----------------------------
       {
         test: /\.(js|jsx)$/,
         loader: 'babel-loader',
         include: [path.resolve(__dirname, 'src')],
         exclude: [path.resolve(__dirname, 'node_modules')],
+        // TODO: use .babelrc instead ?
         options: {
+          // ------------------------ BABEL PLUGINS ---------------------------
           // TODO: "transform-imports" (babel-plugin-transform-imports)
           plugins: [
             'react-hot-loader/babel',
             // 'fast-async',
             'syntax-dynamic-import',
             'transform-class-properties',
+          // TODO: replace next concat by by .filter(Boolean)
           ].concat(isProduction ? [] : ['transform-react-jsx-source']),
+          // ------------------------ BABEL PRESETS ---------------------------
           presets: [
             ['env', {
-              // modules: false,
-              // useBuiltIns: 'usage', // OR 'entry'
+              // need to be turned on for Jest testing
+              // modules: env === 'development' ? false : 'commonjs',
+              useBuiltIns: 'usage', // 'entry' OR false
               debug: true,
               targets: {
                 browsers: [
@@ -162,15 +179,16 @@ module.exports = {
               },
               exclude: [/* plugins to exlude */],
             }],
+            // 'flow',
             'react',
             'stage-3',
           ],
           cacheDirectory: true,
         },
       },
+      // --------------------- CSS/SCSS LOADERS -------------------------------
       {
         test: /\.(scss|css)$/, // OR /\.s?[ac]ss$/, OR /\.(sa|sc|c)ss$/,
-        // TODO: consider to replace by more specific include's
         include: [
           // path.resolve(__dirname, 'src'),
           path.resolve(__dirname, 'src/styles'),
@@ -189,7 +207,7 @@ module.exports = {
             options: {
               ident: 'postcss',
               // syntax: scssSyntax,
-              plugins: isProduction ? [autoprefixer, /* cssnano */ ] : [],
+              plugins: isProduction ? [autoprefixer/* , cssnano */] : [],
               sourceMap: true,
             },
           },
@@ -202,14 +220,16 @@ module.exports = {
         // TODO: consider to remove include
         include: path.resolve(__dirname, 'src'),
         use: [
+          // --------------------- FILE-LOADER --------------------------------
           {
             loader: 'file-loader',
             options: {
-              name: isProduction ? '[name].[hash].[ext]' : '[name].[ext]',
+              name: isProduction ? '[name].[hash:4].[ext]' : '[name].[ext]',
               // outputPath: 'assets/', // custom output path
               useRelativePath: true, // isProd
             },
           },
+          // --------------------- IMAGE-WEBPACK-LOADER -----------------------
           // {
           //   loader: 'image-webpack-loader',
           //   query: {
@@ -224,52 +244,17 @@ module.exports = {
           // }
         ],
       },
-      // {
-      //   test: /\.(scss|css)$/,
-      //   // TODO: add include here ?
-      //   include: [
-      //     path.resolve(__dirname, 'src'),
-      //     path.resolve(__dirname, 'node_modules')
-      //   ],
-      //   use: ExtractTextPlugin.extract({
-      //     use: [
-      //       { // not translates url() that starts with "/"
-      //         loader: 'css-loader',
-      //         options: {
-      //           importLoaders: 3,
-      //           // url: false, // enable/disable url() resolving
-      //           // minimize: true, // OR { /* cssnano config */ } OR w postcss
-      //           sourceMap: true
-      //         }
-      //       },
-      //       {
-      //         loader: 'postcss-loader',
-      //         options: {
-      //           ident: 'postcss',
-      //           syntax: scssSyntax,
-      //           plugins: [
-      //             autoprefixer
-      //             // cssnano
-      //           ],
-      //           sourceMap: true
-      //         }
-      //       },
-      //       // w/o it css-loader can only resolve url() relative to index.scss
-      //       // 'resolve-url-loader',
-      //       { loader: 'sass-loader', options: { sourceMap: true } }
-      //     ],
-      //     fallback: 'style-loader'
-      //   })
-      // },
+      // --------------------------- URL-LOADER -------------------------------
       // {
       //   test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/,
       //   loader: 'url-loader',
       //   options: {
-      //     limit: 10000
-      //   }
-      // }
+      //     limit: 10000,
+      //   },
+      // },
     ],
   },
+  // ============================= DEV-SERVER =================================
   devServer: {
     progress: true,
     contentBase: path.resolve(__dirname, 'public'),
