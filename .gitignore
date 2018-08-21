@@ -7,6 +7,7 @@ build/
 
 # TEMP (will be replaced by "dist" or "build" later):
 public/
+# src/assets/
 
 # config/
 
@@ -15,15 +16,11 @@ public/
 # .eslintrc.json
 # .eslintignore
 
-# public/assets/
-# src/assets/
-# public/**/*.js.map
-# public/**/*.css.map
-
 # misc
 .DS_Store
 npm-debug.log
 yarn-error.log
+express.log
 **/.idea/
 **/.vscode/
 **/temp/
