@@ -21,8 +21,6 @@ export function* deletePostById({ payload }) {
   const { id } = payload;
   let { wallId } = payload;
 
-  yield call(delay, 2000); // TEMP:
-
   if (!wallId) {
     wallId = yield select(getWallId);
   }
@@ -44,7 +42,7 @@ export function* deletePostById({ payload }) {
 }
 
 export function* createNewPost({ payload }) {
-  yield call(delay, 2000);
+  yield call(delay, 2000); // TEMP:
 
   const state = yield select();
   const wallId = getWallId(state);

@@ -13,6 +13,7 @@ const makePostDocRef = (wallId, postId) => {
 };
 
 const deleteField = () => firebase.firestore.FieldValue.delete();
+
 // TODO: rename to request/retrieve/receive/gain...
 const obtainWallIdByCity = (city) => {
   // OR place, locality, location
@@ -32,7 +33,7 @@ const obtainWallIdByCity = (city) => {
 
       walls.push(wall);
     });
-    console.log('obtain walls ', walls);
+    console.log('obtained walls ', walls);
 
     return walls[0].id;
   });
@@ -60,7 +61,7 @@ const getPosts = (filter) => {
         createdAt: post.createdAt.toMillis(),
       };
     });
-    console.log('get posts ', posts);
+    console.log('got posts ', posts);
     return posts;
   });
 };
@@ -91,7 +92,7 @@ const createPost = (wallId, newPost) => {
 const deletePost = (wallId, postId) => {
   const postRef = makePostDocRef(wallId, postId);
 
-  return postRef.delete().catch(error => ({ error }));
+  return postRef.delete(); /* .catch(error => ({ error })); */
 };
 
 const updatePost = (message) => {
@@ -118,14 +119,32 @@ const subscribeToWall = ({ clientUid, wallId }) => {
 //   });
 // };
 
-const unsubscribeFromWall = (uid) => {
-  return makeWallRef('VmQhK1Bg5HFKnLMr6hZw').set(
-    { subscribers: { [uid]: true } },
-    { merge: true },
-  ).then(
-    result => console.log('Unsubsribe from wall result: ', result),
-    error => console.error(error),
-  );
+const unsubscribeFromWall = (uid, wallId) => {
+  const wallRef = makeWallRef(wallId);
+
+  return db.runTransaction((transaction) => {
+    // This code may get re-run multiple times if there are conflicts.
+    return transaction.get(wallRef).then((wallDoc) => {
+      if (!wallDoc.exists) {
+        throw new Error('Document does not exist!');
+      }
+
+      const wallData = wallDoc.data();
+      const { subscribers } = wallData;
+      const prev = { ...subscribers };
+      // const updated = subscribers.filter(id => id !== uid);
+      delete subscribers[uid];
+
+      transaction.update(wallRef, { subscribers });
+
+      return { prev, subscribers };
+      // return Promise.reject('Some rejection message');
+    });
+  }).then(({ prev, subscribers }) => {
+    console.log('Unsubsribe Transaction result', { prev, subscribers });
+  }).catch((err) => {
+    console.error(err);
+  });
 };
 
 export {

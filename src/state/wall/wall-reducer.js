@@ -38,7 +38,7 @@ const isSubscribing = (state = false, action) => {
       return true;
     case aT.JOIN_WALL_SUCCESS:
     case aT.JOIN_WALL_FAIL:
-    case aT.LEAVE_WALL:
+    case aT.LEAVE_WALL_SUCCESS: // NOTE: LEAVE_WALL too ???
       return false;
     default:
       return state;
@@ -50,7 +50,7 @@ const isSubscribed = (state = false, action) => {
   switch (action.type) {
     case aT.JOIN_WALL_SUCCESS:
       return true;
-    case aT.LEAVE_WALL:
+    case aT.LEAVE_WALL_SUCCESS:
       return false;
     default:
       return state;

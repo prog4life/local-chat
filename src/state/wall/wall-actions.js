@@ -11,6 +11,9 @@ export const joinWallSuccess = ({ entities, result }) => ({
   payload: { byId: entities.posts, ids: result },
 });
 export const joinWallFail = () => ({ type: JOIN_WALL_FAIL });
-export const leaveWall = () => ({ type: LEAVE_WALL });
+export const leaveWall = (uid, wallId) => ({
+  type: LEAVE_WALL,
+  payload: { uid, wallId },
+});
 
 export const fetchWallId = city => ({ type: FETCH_WALL_ID, city });
