@@ -155,21 +155,23 @@ module.exports = {
           // ------------------------ BABEL PLUGINS ---------------------------
           // TODO: "transform-imports" (babel-plugin-transform-imports)
           plugins: [
-            'react-hot-loader/babel',
+            'react-hot-loader/babel', // consider replacing if not in dev mode
             // 'fast-async',
             'syntax-dynamic-import',
             'transform-class-properties',
-          // TODO: replace next concat by by .filter(Boolean)
+          // TODO: replace next concat by .filter(Boolean)
           ].concat(isProduction ? [] : ['transform-react-jsx-source']),
           // ------------------------ BABEL PRESETS ---------------------------
           presets: [
             ['env', {
               // need to be turned on for Jest testing
-              // modules: env === 'development' ? false : 'commonjs',
+              modules: env === 'development' ? false : 'commonjs',
               useBuiltIns: 'usage', // 'entry' OR false
               debug: true,
               targets: {
-                browsers: [
+                // external config in package.json or .browserslistrc will
+                // be supported in 7.0
+                browsers: [ // config from "wp-calypso"
                   'last 2 versions',
                   'Safari >= 10',
                   'iOS >= 10',
